@@ -130,8 +130,24 @@ class _FavoriteWidgetState extends State<FavoriteWidget> {
     return directory.path;
   }
 
-  void _toggleFavorite() async {
+  Future<File> get _localFile async {
     final path = await _localPath;
+    return File('$path/counter.txt');
+  }
+
+  Future<File> writeCounter() async {
+    final file = await _localFile;
+
+    // Write the file
+    return file.writeAsString('test text');
+  }
+
+  void _toggleFavorite() async {
+    // final path1 = FloatingActionButton;
+
+    // Read the file
+    final path1 = await _localFile;
+    final path = await path1.readAsString();
 
     print(path);
 
