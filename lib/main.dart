@@ -1,8 +1,11 @@
 // Copyright 2018 The Flutter team. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
+import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 void main() => runApp(MyApp());
 
@@ -119,9 +122,19 @@ class FavoriteWidget extends StatefulWidget {
 
 class _FavoriteWidgetState extends State<FavoriteWidget> {
   bool _isFavorited = true;
-  int _favariteCount = 42;
+  int _favariteCount = 45;
 
-  void _toggleFavorite() {
+  Future<String> get _localPath async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  void _toggleFavorite() async {
+    final path = await _localPath;
+
+    print(path);
+
     setState(() {
       if (_isFavorited) {
         _favariteCount -= 1;
