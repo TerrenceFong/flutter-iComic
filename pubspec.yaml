@@ -30,6 +30,7 @@ dependencies:
   english_words: ^4.0.0-0
   path_provider: ^2.0.2
   provider: ^5.0.0
+  http: ^0.13.3
 
 dev_dependencies:
   flutter_test:

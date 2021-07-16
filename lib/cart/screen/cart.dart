@@ -62,17 +62,23 @@ class _CartTotal extends StatelessWidget {
     var hugeStyle =
         Theme.of(context).textTheme.headline1!.copyWith(fontSize: 48);
 
+    var cart = context.watch<CartModel>();
+
     return SizedBox(
       height: 200,
       child: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Consumer<CartModel>(
-              builder: (context, cart, child) => Text(
-                '\$${cart.totalPrice}',
-                style: hugeStyle,
-              ),
+            // Consumer<CartModel>(
+            //   builder: (context, cart, child) => Text(
+            //     '\$${cart.totalPrice}',
+            //     style: hugeStyle,
+            //   ),
+            // ),
+            Text(
+              '\$${cart.totalPrice}',
+              style: hugeStyle,
             ),
             const SizedBox(width: 24),
             TextButton(

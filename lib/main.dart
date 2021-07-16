@@ -3,6 +3,7 @@ import 'package:my_app/cart/common/theme.dart';
 import 'package:my_app/cart/models/cart.dart';
 import 'package:my_app/cart/models/catalog.dart';
 import 'package:my_app/cart/screen/cart.dart';
+import 'package:my_app/photoHttp.dart';
 import 'package:provider/provider.dart';
 import 'cart/screen/catalog.dart';
 import 'testFileImage.dart';
@@ -35,6 +36,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => MyLogin(),
           '/cart': (context) => MyCart(),
           '/catalog': (context) => MyCatalog(),
+          '/photoHttp': (context) => PhotoHttp()
         },
         onGenerateRoute: (settings) {
           // Handle '/details/:id'
@@ -64,12 +66,6 @@ class HomeScreen extends StatelessWidget {
             child: TextButton(
               child: Text('View Details'),
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) {
-                //     return DetailScreen();
-                //   }),
-                // );
                 Navigator.pushNamed(
                   context,
                   '/details/11',
@@ -81,12 +77,6 @@ class HomeScreen extends StatelessWidget {
             child: TextButton(
               child: Text('View test FileImage'),
               onPressed: () {
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(builder: (context) {
-                //     return TestFileImage();
-                //   }),
-                // );
                 Navigator.pushNamed(
                   context,
                   '/test-fileImage',
@@ -112,6 +102,17 @@ class HomeScreen extends StatelessWidget {
                 Navigator.pushNamed(
                   context,
                   '/login',
+                );
+              },
+            ),
+          ),
+          Center(
+            child: TextButton(
+              child: Text('photoHttp'),
+              onPressed: () {
+                Navigator.pushNamed(
+                  context,
+                  '/photoHttp',
                 );
               },
             ),
