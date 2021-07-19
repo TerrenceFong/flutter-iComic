@@ -40,5 +40,9 @@ class Item {
   int get hashCode => id;
 
   @override
-  bool operator ==(Object other) => other is Item && other.id == id;
+  // bool operator ==(Object other) => other is Item && other.id == id;
+  // 重写 == 操作符
+  bool operator ==(Object other) {
+    return other is Item && other.id == id;
+  }
 }

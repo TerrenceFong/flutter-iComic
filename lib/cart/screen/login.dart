@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 
-class MyLogin extends StatelessWidget {
-  const MyLogin({Key? key}) : super(key: key);
+class MyLogin extends StatefulWidget {
+  MyLogin({Key? key}) : super(key: key);
+
+  @override
+  _MyLogin createState() => _MyLogin();
+}
+
+class _MyLogin extends State<MyLogin> {
+  final TextEditingController _controller1 = TextEditingController();
+  final TextEditingController _controller2 = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +28,14 @@ class MyLogin extends StatelessWidget {
                 decoration: const InputDecoration(
                   hintText: 'Username',
                 ),
+                controller: _controller1,
               ),
               TextFormField(
                 decoration: const InputDecoration(
                   hintText: 'Password',
                 ),
                 obscureText: true,
+                controller: _controller2,
               ),
               const SizedBox(
                 height: 24,
@@ -33,6 +43,8 @@ class MyLogin extends StatelessWidget {
               ElevatedButton(
                 child: const Text('ENTER'),
                 onPressed: () {
+                  print(_controller1.text);
+                  print(_controller2.text);
                   Navigator.pushReplacementNamed(context, '/catalog');
                 },
                 style: ElevatedButton.styleFrom(

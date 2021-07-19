@@ -33,9 +33,9 @@ class TestFileImage extends StatelessWidget {
       ),
     );
 
-    return FutureBuilder<dynamic>(
+    return FutureBuilder<File>(
       future: _localFile,
-      builder: (context, AsyncSnapshot<dynamic> snapshot) {
+      builder: (context, AsyncSnapshot<File> snapshot) {
         if (snapshot.hasData) {
           return Scaffold(
             appBar: AppBar(
@@ -49,7 +49,7 @@ class TestFileImage extends StatelessWidget {
                   height: 240,
                   fit: BoxFit.cover,
                 ),
-                Image.file(snapshot.data),
+                Image.file(snapshot.data!),
                 titleSection,
                 buttonSection,
                 textSection,
