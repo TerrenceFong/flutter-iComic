@@ -41,6 +41,14 @@ class Photo {
       thumbnailUrl: json['thumbnailUrl'] as String,
     );
   }
+
+  // 变种写法
+  // Photo.fromJson(Map<String, dynamic> json)
+  //     : albumId = json['albumId'] as int,
+  //       id = json['id'] as int,
+  //       title = json['title'] as String,
+  //       url = json['url'] as String,
+  //       thumbnailUrl = json['thumbnailUrl'] as String;
 }
 
 class PhotoHttp extends StatelessWidget {
