@@ -4,9 +4,10 @@ import 'package:my_app/cart/models/cart.dart';
 import 'package:my_app/cart/models/catalog.dart';
 import 'package:my_app/cart/screen/cart.dart';
 import 'package:my_app/photoHttp.dart';
+import 'package:my_app/comic/screen/home.dart' as comic;
 import 'package:provider/provider.dart';
 import 'cart/screen/catalog.dart';
-import 'testFileImage.dart';
+import 'testFileImage.dart' as TestFileImage;
 import 'detail.dart';
 import 'cart/screen/login.dart';
 
@@ -30,9 +31,10 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         theme: appTheme,
         routes: {
-          '/': (context) => HomeScreen(),
+          '/': (context) => comic.Home(),
+          // '/': (context) => HomeScreen(),
           // '/details': (context) => DetailScreen(),
-          '/test-fileImage': (context) => TestFileImage(),
+          '/test-fileImage': (context) => TestFileImage.TestFileImage(),
           '/login': (context) => MyLogin(),
           '/cart': (context) => MyCart(),
           '/catalog': (context) => MyCatalog(),
