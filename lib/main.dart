@@ -5,6 +5,7 @@ import 'package:my_app/cart/models/catalog.dart';
 import 'package:my_app/cart/screen/cart.dart';
 import 'package:my_app/photoHttp.dart';
 import 'package:my_app/comic/screen/home.dart' as comic;
+import 'package:my_app/comic/screen/imageList.dart' as imageList;
 import 'package:provider/provider.dart';
 import 'cart/screen/catalog.dart';
 import 'testFileImage.dart' as TestFileImage;
@@ -41,13 +42,19 @@ class MyApp extends StatelessWidget {
           '/photoHttp': (context) => PhotoHttp()
         },
         onGenerateRoute: (settings) {
-          // Handle '/details/:id'
           var uri = Uri.parse(settings.name as String);
+          // Handle '/details/:id'
           if (uri.pathSegments.length == 2 &&
               uri.pathSegments.first == 'details') {
             var id = uri.pathSegments[1];
             return MaterialPageRoute(
                 builder: (context) => DetailScreen(id: id));
+            // Handle '/imageList/:path'
+          } else if (uri.pathSegments.length == 2 &&
+              uri.pathSegments.first == 'imageList') {
+            var path = uri.pathSegments[1];
+            return MaterialPageRoute(
+                builder: (context) => imageList.ImageList(path: path));
           }
         },
       ),
