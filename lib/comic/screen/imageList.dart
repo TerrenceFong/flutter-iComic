@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
+import 'package:provider/provider.dart';
+import 'package:my_app/comic/models/comic.dart';
 
 class ImageList extends StatefulWidget {
   final String path;
@@ -19,7 +21,8 @@ class _ImageListState extends State<ImageList> {
   List<String> imageData = [];
   String contentText = "正在加载数据";
   ScrollController _scrollController = ScrollController();
-  double screenWidth = 375;
+  double screenWidth = window.physicalSize.width / window.devicePixelRatio;
+  // bool isScroll = true;
 
   _ImageListState(this.path);
 
@@ -49,10 +52,16 @@ class _ImageListState extends State<ImageList> {
       _imageData.add(entity.path);
     }
 
+    _imageData.sort();
+
     setState(() {
       imageData = _imageData;
+
+      // 滚动到指定位置
+      // 该值从本地获取
+      // _scrollController.jumpTo(3 * screenWidth);
+      // lastPage = 3;
     });
-    // return File('$path/test.png');
   }
 
   late Offset pointerStart;
@@ -133,8 +142,11 @@ class _ImageListState extends State<ImageList> {
   void animateToOffset(ScrollController controller, double offset,
       void Function() onScrollCompleted) {
     controller
-        .animateTo(offset,
-            duration: Duration(milliseconds: 200), curve: Curves.easeIn)
+        .animateTo(
+      offset,
+      duration: Duration(milliseconds: 200),
+      curve: Curves.easeIn,
+    )
         .then((value) {
       onScrollCompleted();
     }).catchError((e) {
@@ -144,41 +156,131 @@ class _ImageListState extends State<ImageList> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: <Widget>[
-        Container(
-          color: Colors.black,
-          child: Listener(
-            onPointerDown: getPointDownListenerInHorizontal(),
-            onPointerUp: getPointUpListenerInHorizontal(),
-            child: ListView.builder(
-              // physics: new NeverScrollableScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              controller: _scrollController,
-              itemCount: imageData.length,
-              itemExtent: screenWidth,
-              itemBuilder: (context, index) {
-                return ImageDetail(filePath: imageData[index]);
-              },
-            ),
-          ),
-        )
-      ],
+    print('imageList build');
+    var comic = context.watch<ComicModel>();
+
+    return Container(
+      color: Colors.black,
+      child: ListView.builder(
+        physics: comic.isScroll ? null : new NeverScrollableScrollPhysics(),
+        scrollDirection: Axis.horizontal,
+        controller: _scrollController,
+        itemCount: imageData.length,
+        itemExtent: screenWidth,
+        itemBuilder: (context, index) {
+          return ImageDetail(
+            filePath: imageData[index],
+            getPointDown: getPointDownListenerInHorizontal(),
+            getPointUp: getPointUpListenerInHorizontal(),
+          );
+        },
+      ),
     );
   }
 }
 
-class ImageDetail extends StatelessWidget {
+class ImageDetail extends StatefulWidget {
   final String filePath;
+  final PointerDownEventListener getPointDown;
+  final PointerUpEventListener getPointUp;
 
-  const ImageDetail({Key? key, required this.filePath}) : super(key: key);
+  const ImageDetail({
+    Key? key,
+    required this.filePath,
+    required this.getPointDown,
+    required this.getPointUp,
+  }) : super(key: key);
+
+  @override
+  _ImageDetailState createState() =>
+      _ImageDetailState(filePath, getPointDown, getPointUp);
+}
+
+class _ImageDetailState extends State<ImageDetail> {
+  final String filePath;
+  final PointerDownEventListener getPointDown;
+  final PointerUpEventListener getPointUp;
+  double dpr = window.devicePixelRatio;
+  double screenWidth = window.physicalSize.width / window.devicePixelRatio;
+  double screenHeight = window.physicalSize.height / window.devicePixelRatio;
+  bool showSetting = false;
+
+  _ImageDetailState(this.filePath, this.getPointDown, this.getPointUp);
+
+  List<double> get centerX {
+    double perPartSize = screenWidth / 3;
+    return [perPartSize, perPartSize * 2];
+  }
+
+  List<double> get centerY {
+    double halfHeight = screenHeight / 2;
+    return [halfHeight - halfHeight / 3, halfHeight + halfHeight / 3];
+  }
 
   @override
   Widget build(BuildContext context) {
-    // print(filePath);
+    var comic = context.watch<ComicModel>();
 
-    return Center(
-      child: Image.file(File(filePath)),
+    return Stack(
+      children: <Widget>[
+        // 图片
+        Listener(
+          onPointerDown: (PointerDownEvent e) {
+            getPointDown(e);
+          },
+          onPointerUp: (PointerUpEvent e) {
+            double dx = e.localPosition.dx;
+            double dy = e.localPosition.dy;
+
+            print('dx: $dx, dy: $dy');
+
+            // 左右侧在父级处理
+            // 中间区域检测
+            if (dx > centerX[0] &&
+                dx < centerX[1] &&
+                dy > centerY[0] &&
+                dy < centerY[1]) {
+              print('点击了中心位置: ${e.localPosition.dx}, ${e.localPosition.dy}');
+              setState(() {
+                comic.isScroll = false;
+                showSetting = true;
+              });
+            }
+
+            getPointUp(e);
+          },
+          child: Center(
+            child: Container(
+              height: screenHeight,
+              child: Image.file(
+                File(filePath),
+              ),
+            ),
+          ),
+        ),
+        // 蒙层
+        Positioned(
+          left: 0,
+          top: 0,
+          child: showSetting
+              ? GestureDetector(
+                  onTap: () {
+                    print('tap');
+                    setState(() {
+                      comic.isScroll = true;
+                      showSetting = false;
+                    });
+                  },
+                  child: Container(
+                    height: screenHeight,
+                    width: screenWidth,
+                    color: Color.fromARGB(80, 0, 0, 0),
+                    child: Text('ffff'),
+                  ),
+                )
+              : Container(),
+        )
+      ],
     );
   }
 }

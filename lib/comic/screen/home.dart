@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import "package:collection/collection.dart";
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -35,15 +36,18 @@ class _HomeState extends State<Home> {
     final dir = Directory('$path');
     print(dir);
 
-    final List<Map<String, String>> _items = [];
+    List<Map<String, String>> _items = [];
 
     await for (var entity in dir.list(followLinks: false)) {
       final isDir = await FileSystemEntity.isDirectory(entity.path);
       final dirname = p.basename(entity.path);
+      print('dirname: $dirname');
       if (isDir == true) {
         _items.add({'name': dirname, 'path': entity.path});
       }
     }
+
+    _items.sort((a, b) => compareAsciiUpperCase(a['name']!, b['name']!));
 
     setState(() {
       comicPath = path;

@@ -3,6 +3,7 @@ import 'package:my_app/cart/common/theme.dart';
 import 'package:my_app/cart/models/cart.dart';
 import 'package:my_app/cart/models/catalog.dart';
 import 'package:my_app/cart/screen/cart.dart';
+import 'package:my_app/comic/models/comic.dart';
 import 'package:my_app/photoHttp.dart';
 import 'package:my_app/comic/screen/home.dart' as comic;
 import 'package:my_app/comic/screen/imageList.dart' as imageList;
@@ -20,6 +21,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         Provider(create: (context) => CatalogModel()),
+        ChangeNotifierProvider(create: (context) => ComicModel()),
+        // Provider<ComicModel>(create: (context) => ComicModel()),
         ChangeNotifierProxyProvider<CatalogModel, CartModel>(
           create: (context) => CartModel(),
           update: (context, catalog, cart) {
