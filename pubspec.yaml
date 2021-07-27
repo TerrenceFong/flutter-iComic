@@ -34,6 +34,7 @@ dependencies:
   shared_preferences: ^2.0.6
   redux: ^5.0.0
   flutter_redux: ^0.8.2
+  translator: ^0.1.7
 
 dev_dependencies:
   flutter_test:
