@@ -3,12 +3,12 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:my_app/comic/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:my_app/comic/models/comic.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:translator/translator.dart';
 
 class ImageList extends StatefulWidget {
   final String path;
@@ -194,14 +194,6 @@ Future<List<Words>> getTransInfo(String image) async {
   //   }),
   // );
 
-  final translator = GoogleTranslator();
-
-  // Passing the translation to a variable
-  var translation =
-      await translator.translate("今まであんな行動したっけ?", from: 'ja', to: 'zh-cn');
-
-  print("translation: $translation");
-
   final jsonStr =
       '{"code":200,"data":{"words_result":[{"words":"甘い生活63","location":{"top":65,"left":63,"width":143,"height":31}},{"words":"イテア","location":{"top":112,"left":341,"width":30,"height":79}},{"words":"な","location":{"top":115,"left":364,"width":31,"height":73}},{"words":"あなた","location":{"top":113,"left":398,"width":22,"height":77}},{"words":"あによ?","location":{"top":116,"left":454,"width":20,"height":81}},{"words":"行動したっけ?","location":{"top":424,"left":434,"width":24,"height":131}},{"words":"今まであんな","location":{"top":425,"left":457,"width":22,"height":130}},{"words":"そう","location":{"top":606,"left":220,"width":71,"height":18}},{"words":"るれン","location":{"top":623,"left":223,"width":63,"height":21}},{"words":":","location":{"top":637,"left":222,"width":53,"height":31}},{"words":"ました?","location":{"top":746,"left":72,"width":22,"height":95}},{"words":"ちゃい","location":{"top":748,"left":92,"width":27,"height":77}},{"words":"る","location":{"top":761,"left":105,"width":27,"height":48}},{"words":"うれしそう!?","location":{"top":739,"left":834,"width":21,"height":121}},{"words":"で","location":{"top":1053,"left":90,"width":28,"height":39}},{"words":"13","location":{"top":1321,"left":65,"width":29,"height":21}}],"log_id":1419958073583525000,"words_result_num":16,"direction":0}}';
   final res = {'statusCode': 200};
@@ -215,48 +207,13 @@ Future<List<Words>> getTransInfo(String image) async {
     final wordsData =
         parsed.map<Words>((json) => Words.fromJson(json)).toList();
 
+    var bb = await translateWords(arrangeWords(wordsData));
+    print('bb: ${bb[5].words}');
     return wordsData;
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
     throw Exception('Failed to get translate.');
-  }
-}
-
-class Words {
-  final String words;
-  final Location location;
-
-  Words({required this.words, required this.location});
-
-  factory Words.fromJson(Map<String, dynamic> json) {
-    return Words(
-      words: json['words'] as String,
-      location: Location.fromJson(json['location']),
-    );
-  }
-}
-
-class Location {
-  final int top;
-  final int left;
-  final int width;
-  final int height;
-
-  Location({
-    required this.top,
-    required this.left,
-    required this.width,
-    required this.height,
-  });
-
-  factory Location.fromJson(dynamic json) {
-    return Location(
-      top: json['top'] as int,
-      left: json['left'] as int,
-      width: json['width'] as int,
-      height: json['height'] as int,
-    );
   }
 }
 
