@@ -1,6 +1,9 @@
 import 'dart:math' as math;
 import 'package:translator/translator.dart';
+import 'package:convert/convert.dart';
+import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Words {
   String words;
@@ -119,6 +122,43 @@ List<Words> arrangeWords(List<Words> words) {
   return filterWords;
 }
 
+class MD5Util {
+  static String generateMd5(String data) {
+    var content = new Utf8Encoder().convert(data);
+    var digest = md5.convert(content);
+    // 这里其实就是 digest.toString()
+    return hex.encode(digest.bytes);
+  }
+}
+
+Future<String> bdTrans(String query) async {
+  var appid = '20210729000900971';
+  var key = 'ZGdTJRGaQi9FxI4lMZgM';
+  var salt = DateTime.now().millisecondsSinceEpoch.toString();
+  var str1 = appid + query + salt + key;
+  var sign = MD5Util.generateMd5(str1);
+
+  var from = 'jp';
+  var to = 'zh';
+
+  final res = await http.Client().get(
+    Uri.parse(
+        'https://fanyi-api.baidu.com/api/trans/vip/translate?q=$query&appid=$appid&salt=$salt&from=$from&to=$to&sign=$sign'),
+  );
+
+  if (res.statusCode == 200) {
+    Utf8Decoder utf8decoder = Utf8Decoder();
+    final parsed = json
+        .decode(utf8decoder.convert(res.bodyBytes))['trans_result'][0]['dst'];
+    print('bdt: $parsed');
+    return parsed;
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to get baidu translate.');
+  }
+}
+
 /// 翻译 List
 Future<List<Words>> translateWords(List<Words> words, bool useBd) async {
   final translator = GoogleTranslator();
@@ -128,10 +168,10 @@ Future<List<Words>> translateWords(List<Words> words, bool useBd) async {
   for (Words e in words) {
     String transWord = '';
     try {
-      transWord = useBd
+      transWord = !useBd
           ? (await translator.translate(e.words, from: 'ja', to: 'zh-cn'))
               .toString()
-          : e.words;
+          : await bdTrans(e.words);
     } catch (e) {
       print('translate word error: $e');
     }

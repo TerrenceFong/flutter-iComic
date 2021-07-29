@@ -210,7 +210,7 @@ Future<List<Words>> getTransInfo(String image) async {
     final wordsData =
         parsed.map<Words>((json) => Words.fromJson(json)).toList();
 
-    var transWords = await translateWords(arrangeWords(wordsData), false);
+    var transWords = await translateWords(arrangeWords(wordsData), true);
 
     return transWords;
   } else {
