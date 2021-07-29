@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:translator/translator.dart';
+import 'package:http/http.dart' as http;
 
 class Words {
   String words;
@@ -16,10 +17,10 @@ class Words {
 }
 
 class Location {
-  final int top;
-  final int left;
-  final int width;
-  final int height;
+  final double top;
+  final double left;
+  final double width;
+  final double height;
 
   Location({
     required this.top,
@@ -30,14 +31,14 @@ class Location {
 
   factory Location.fromJson(dynamic json) {
     return Location(
-      top: json['top'] as int,
-      left: json['left'] as int,
-      width: json['width'] as int,
-      height: json['height'] as int,
+      top: json['top'].toDouble(),
+      left: json['left'].toDouble(),
+      width: json['width'].toDouble(),
+      height: json['height'].toDouble(),
     );
   }
 
-  Map<String, int> toMap() {
+  Map<String, double> toMap() {
     return {
       'top': top,
       'left': left,
@@ -60,8 +61,13 @@ List<Words> arrangeWords(List<Words> words) {
 
   if (words.length > 1) {
     String word = '';
-    Map<String, int> position = {'top': 0, 'left': 0, 'width': 0, 'height': 0};
-    Map<String, int> targetPosition = {
+    Map<String, double> position = {
+      'top': 0,
+      'left': 0,
+      'width': 0,
+      'height': 0
+    };
+    Map<String, double> targetPosition = {
       'top': 0,
       'left': 0,
       'width': 0,
@@ -84,7 +90,7 @@ List<Words> arrangeWords(List<Words> words) {
           position = e.location.toMap();
           targetPosition['width'] = targetPosition['width']! + e.location.width;
           targetPosition['height'] =
-              math.max<int>(targetPosition['height']!, e.location.height);
+              math.max<double>(targetPosition['height']!, e.location.height);
         } else {
           // 遇到不相邻的，先把之前匹配的推入队列
           filterWords.add(
@@ -114,15 +120,21 @@ List<Words> arrangeWords(List<Words> words) {
 }
 
 /// 翻译 List
-Future<List<Words>> translateWords(List<Words> words) async {
+Future<List<Words>> translateWords(List<Words> words, bool useBd) async {
   final translator = GoogleTranslator();
 
   List<Words> transWords = [];
 
   for (Words e in words) {
-    var transWord =
-        (await translator.translate(e.words, from: 'ja', to: 'zh-cn'))
-            .toString();
+    String transWord = '';
+    try {
+      transWord = useBd
+          ? (await translator.translate(e.words, from: 'ja', to: 'zh-cn'))
+              .toString()
+          : e.words;
+    } catch (e) {
+      print('translate word error: $e');
+    }
 
     transWords.add(
       Words(
@@ -134,3 +146,7 @@ Future<List<Words>> translateWords(List<Words> words) async {
 
   return transWords;
 }
+
+/// 百度相关信息
+String bdAppId = '20210729000900971';
+String bdSercet = 'ZGdTJRGaQi9FxI4lMZgM';

@@ -162,54 +162,57 @@ class _ImageListState extends State<ImageList> {
     print('imageList build');
     var comic = context.watch<ComicModel>();
 
-    return Container(
-      color: Colors.black,
-      child: ListView.builder(
-        physics: comic.isScroll ? null : new NeverScrollableScrollPhysics(),
-        scrollDirection: Axis.horizontal,
-        controller: _scrollController,
-        itemCount: imageData.length,
-        itemExtent: screenWidth,
-        itemBuilder: (context, index) {
-          return ImageDetail(
-            filePath: imageData[index],
-            getPointDown: getPointDownListenerInHorizontal(),
-            getPointUp: getPointUpListenerInHorizontal(),
-          );
-        },
+    return Material(
+      child: Container(
+        color: Colors.black,
+        child: ListView.builder(
+          physics: comic.isScroll ? null : new NeverScrollableScrollPhysics(),
+          scrollDirection: Axis.horizontal,
+          controller: _scrollController,
+          itemCount: imageData.length,
+          itemExtent: screenWidth,
+          itemBuilder: (context, index) {
+            return ImageDetail(
+              filePath: imageData[index],
+              getPointDown: getPointDownListenerInHorizontal(),
+              getPointUp: getPointUpListenerInHorizontal(),
+            );
+          },
+        ),
       ),
     );
   }
 }
 
 Future<List<Words>> getTransInfo(String image) async {
-  // final res = await http.Client().post(
-  //   Uri.parse(
-  //       'https://42d3g2teii.execute-api.us-east-1.amazonaws.com/prod/api/sp-lottery/trans-info'),
-  //   headers: <String, String>{
-  //     'Content-Type': 'application/json; charset=UTF-8',
-  //   },
-  //   body: jsonEncode(<String, String>{
-  //     'image': image,
-  //   }),
-  // );
+  final res = await http.Client().post(
+    Uri.parse(
+        'https://42d3g2teii.execute-api.us-east-1.amazonaws.com/prod/api/sp-lottery/trans-info'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'image': image,
+    }),
+  );
 
-  final jsonStr =
-      '{"code":200,"data":{"words_result":[{"words":"甘い生活63","location":{"top":65,"left":63,"width":143,"height":31}},{"words":"イテア","location":{"top":112,"left":341,"width":30,"height":79}},{"words":"な","location":{"top":115,"left":364,"width":31,"height":73}},{"words":"あなた","location":{"top":113,"left":398,"width":22,"height":77}},{"words":"あによ?","location":{"top":116,"left":454,"width":20,"height":81}},{"words":"行動したっけ?","location":{"top":424,"left":434,"width":24,"height":131}},{"words":"今まであんな","location":{"top":425,"left":457,"width":22,"height":130}},{"words":"そう","location":{"top":606,"left":220,"width":71,"height":18}},{"words":"るれン","location":{"top":623,"left":223,"width":63,"height":21}},{"words":":","location":{"top":637,"left":222,"width":53,"height":31}},{"words":"ました?","location":{"top":746,"left":72,"width":22,"height":95}},{"words":"ちゃい","location":{"top":748,"left":92,"width":27,"height":77}},{"words":"る","location":{"top":761,"left":105,"width":27,"height":48}},{"words":"うれしそう!?","location":{"top":739,"left":834,"width":21,"height":121}},{"words":"で","location":{"top":1053,"left":90,"width":28,"height":39}},{"words":"13","location":{"top":1321,"left":65,"width":29,"height":21}}],"log_id":1419958073583525000,"words_result_num":16,"direction":0}}';
-  final res = {'statusCode': 200};
+  // final jsonStr =
+  //     '{"code":200,"data":{"words_result":[{"words":"甘い生活63","location":{"top":65,"left":63,"width":143,"height":31}},{"words":"イテア","location":{"top":112,"left":341,"width":30,"height":79}},{"words":"な","location":{"top":115,"left":364,"width":31,"height":73}},{"words":"あなた","location":{"top":113,"left":398,"width":22,"height":77}},{"words":"あによ?","location":{"top":116,"left":454,"width":20,"height":81}},{"words":"行動したっけ?","location":{"top":424,"left":434,"width":24,"height":131}},{"words":"今まであんな","location":{"top":425,"left":457,"width":22,"height":130}},{"words":"そう","location":{"top":606,"left":220,"width":71,"height":18}},{"words":"るれン","location":{"top":623,"left":223,"width":63,"height":21}},{"words":":","location":{"top":637,"left":222,"width":53,"height":31}},{"words":"ました?","location":{"top":746,"left":72,"width":22,"height":95}},{"words":"ちゃい","location":{"top":748,"left":92,"width":27,"height":77}},{"words":"る","location":{"top":761,"left":105,"width":27,"height":48}},{"words":"うれしそう!?","location":{"top":739,"left":834,"width":21,"height":121}},{"words":"で","location":{"top":1053,"left":90,"width":28,"height":39}},{"words":"13","location":{"top":1321,"left":65,"width":29,"height":21}}],"log_id":1419958073583525000,"words_result_num":16,"direction":0}}';
+  // final res = {'statusCode': 200};
 
-  if (res['statusCode'] == 200) {
-    // Utf8Decoder utf8decoder = Utf8Decoder();
-    // final parsed =
-    //     json.decode(utf8decoder.convert(res.bodyBytes))['data']['words_result'];
-    final parsed = jsonDecode(jsonStr)['data']['words_result'];
+  if (res.statusCode == 200) {
+    Utf8Decoder utf8decoder = Utf8Decoder();
+    final parsed =
+        json.decode(utf8decoder.convert(res.bodyBytes))['data']['words_result'];
+    // if (res['statusCode'] == 200) {
+    // final parsed = jsonDecode(jsonStr)['data']['words_result'];
 
     final wordsData =
         parsed.map<Words>((json) => Words.fromJson(json)).toList();
 
-    var bb = await translateWords(arrangeWords(wordsData));
-    print('bb: ${bb[5].words}');
-    return wordsData;
+    var transWords = await translateWords(arrangeWords(wordsData), false);
+
+    return transWords;
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -242,6 +245,8 @@ class _ImageDetailState extends State<ImageDetail> {
   double screenWidth = window.physicalSize.width / window.devicePixelRatio;
   double screenHeight = window.physicalSize.height / window.devicePixelRatio;
   bool showSetting = false;
+  bool showTrans = true;
+  List<Words> transWords = [];
 
   _ImageDetailState(this.filePath, this.getPointDown, this.getPointUp);
 
@@ -257,8 +262,16 @@ class _ImageDetailState extends State<ImageDetail> {
 
   @override
   void initState() {
-    getTransInfo(getBase64());
+    setWords();
     super.initState();
+  }
+
+  void setWords() async {
+    var _transWords = await getTransInfo(getBase64());
+
+    setState(() {
+      transWords = _transWords;
+    });
   }
 
   // 图片转 base64
@@ -267,6 +280,85 @@ class _ImageDetailState extends State<ImageDetail> {
     String img64 = base64Encode(bytes);
 
     return img64;
+  }
+
+  /// 设置页面
+  Widget settingSection(ComicModel comic) {
+    return showSetting
+        ? Positioned(
+            left: 0,
+            top: 0,
+            child: GestureDetector(
+              onTap: () {
+                print('tap');
+                setState(() {
+                  comic.isScroll = true;
+                  showSetting = false;
+                });
+              },
+              child: Container(
+                height: screenHeight,
+                width: screenWidth,
+                color: Color.fromARGB(80, 0, 0, 0),
+                child: Text('ffff'),
+              ),
+            ),
+          )
+        : Container();
+  }
+
+  double calcSize(double size, dynamic data, {offset = false}) {
+    double scale = screenWidth / data.width;
+    double _offset = (screenHeight - (data.height * scale)) / 2;
+    return scale * size + (offset ? _offset : 0);
+  }
+
+  /// 翻译页面
+  Widget transSection(ComicModel comic) {
+    // var decodedImage = await decodeImageFromList(image.readAsBytesSync())
+    var image = File(filePath);
+
+    return showTrans
+        ? FutureBuilder(
+            future: decodeImageFromList(image.readAsBytesSync()),
+            builder: (context, AsyncSnapshot snapshot) {
+              if (snapshot.hasError) print(snapshot.error);
+              if (snapshot.hasData) {
+                print(
+                    'size: ${snapshot.data!.width},  ${snapshot.data!.height}');
+                print('screenWidth: $screenWidth');
+                print('screenHeight: $screenHeight');
+              }
+
+              return snapshot.hasData
+                  ? Stack(
+                      children: [
+                        ...(transWords.map(
+                          (e) => Positioned(
+                            left: calcSize(e.location.left, snapshot.data),
+                            top: calcSize(e.location.top, snapshot.data,
+                                offset: true),
+                            child: Container(
+                              height:
+                                  calcSize(e.location.height, snapshot.data),
+                              width: calcSize(e.location.width, snapshot.data),
+                              color: Colors.red,
+                              child: Text(
+                                e.words,
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ))
+                      ],
+                    )
+                  : Center(child: CircularProgressIndicator());
+            },
+          )
+        : Container();
   }
 
   @override
@@ -301,37 +393,22 @@ class _ImageDetailState extends State<ImageDetail> {
 
             getPointUp(e);
           },
-          child: Center(
-            child: Container(
-              height: screenHeight,
-              child: Image.file(
-                File(filePath),
+          child: Stack(
+            children: [
+              Center(
+                child: Container(
+                  height: screenHeight,
+                  child: Image.file(
+                    File(filePath),
+                  ),
+                ),
               ),
-            ),
+              transSection(comic),
+            ],
           ),
         ),
+        settingSection(comic),
         // 蒙层
-        Positioned(
-          left: 0,
-          top: 0,
-          child: showSetting
-              ? GestureDetector(
-                  onTap: () {
-                    print('tap');
-                    setState(() {
-                      comic.isScroll = true;
-                      showSetting = false;
-                    });
-                  },
-                  child: Container(
-                    height: screenHeight,
-                    width: screenWidth,
-                    color: Color.fromARGB(80, 0, 0, 0),
-                    child: Text('ffff'),
-                  ),
-                )
-              : Container(),
-        )
       ],
     );
   }
