@@ -184,7 +184,7 @@ class _ImageListState extends State<ImageList> {
   }
 }
 
-Future<List<Words>> getTransInfo(String image) async {
+Future<List<Words>> getTransInfo(String image, int type) async {
   final res = await http.Client().post(
     Uri.parse(
         'https://42d3g2teii.execute-api.us-east-1.amazonaws.com/prod/api/sp-lottery/trans-info'),
@@ -267,7 +267,7 @@ class _ImageDetailState extends State<ImageDetail> {
   }
 
   void setWords() async {
-    var _transWords = await getTransInfo(getBase64());
+    var _transWords = await getTransInfo(getBase64(), 0);
 
     setState(() {
       transWords = _transWords;
