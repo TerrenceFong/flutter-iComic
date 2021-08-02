@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:my_app/comic/utils/sqflite_db.dart';
 import 'package:my_app/comic/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
@@ -25,14 +26,13 @@ class _ImageListState extends State<ImageList> {
   String contentText = "正在加载数据";
   ScrollController _scrollController = ScrollController();
   double screenWidth = window.physicalSize.width / window.devicePixelRatio;
-  // bool isScroll = true;
 
   _ImageListState(this.path);
 
   @override
   void initState() {
     super.initState();
-    print('initstate1');
+    print('imageList');
 
     getRootInfo();
   }
@@ -184,6 +184,7 @@ class _ImageListState extends State<ImageList> {
   }
 }
 
+/// 提取文字并翻译
 Future<List<Words>> getTransInfo(String image, int type) async {
   final res = await http.Client().post(
     Uri.parse(
@@ -196,16 +197,10 @@ Future<List<Words>> getTransInfo(String image, int type) async {
     }),
   );
 
-  // final jsonStr =
-  //     '{"code":200,"data":{"words_result":[{"words":"甘い生活63","location":{"top":65,"left":63,"width":143,"height":31}},{"words":"イテア","location":{"top":112,"left":341,"width":30,"height":79}},{"words":"な","location":{"top":115,"left":364,"width":31,"height":73}},{"words":"あなた","location":{"top":113,"left":398,"width":22,"height":77}},{"words":"あによ?","location":{"top":116,"left":454,"width":20,"height":81}},{"words":"行動したっけ?","location":{"top":424,"left":434,"width":24,"height":131}},{"words":"今まであんな","location":{"top":425,"left":457,"width":22,"height":130}},{"words":"そう","location":{"top":606,"left":220,"width":71,"height":18}},{"words":"るれン","location":{"top":623,"left":223,"width":63,"height":21}},{"words":":","location":{"top":637,"left":222,"width":53,"height":31}},{"words":"ました?","location":{"top":746,"left":72,"width":22,"height":95}},{"words":"ちゃい","location":{"top":748,"left":92,"width":27,"height":77}},{"words":"る","location":{"top":761,"left":105,"width":27,"height":48}},{"words":"うれしそう!?","location":{"top":739,"left":834,"width":21,"height":121}},{"words":"で","location":{"top":1053,"left":90,"width":28,"height":39}},{"words":"13","location":{"top":1321,"left":65,"width":29,"height":21}}],"log_id":1419958073583525000,"words_result_num":16,"direction":0}}';
-  // final res = {'statusCode': 200};
-
   if (res.statusCode == 200) {
     Utf8Decoder utf8decoder = Utf8Decoder();
     final parsed =
         json.decode(utf8decoder.convert(res.bodyBytes))['data']['words_result'];
-    // if (res['statusCode'] == 200) {
-    // final parsed = jsonDecode(jsonStr)['data']['words_result'];
 
     final wordsData =
         parsed.map<Words>((json) => Words.fromJson(json)).toList();
@@ -267,10 +262,46 @@ class _ImageDetailState extends State<ImageDetail> {
   }
 
   void setWords() async {
-    var _transWords = await getTransInfo(getBase64(), 0);
+    final directory = await getApplicationDocumentsDirectory();
+
+    String fullPath = filePath.split(directory.path)[1];
+    var uri = Uri.parse(fullPath);
+    String comicName = uri.pathSegments[0];
+    String chapter = uri.pathSegments[1];
+    String imgName = uri.pathSegments[2];
+
+    var db = await SqfliteManager.getInstance();
+    var resDB = await db.query(
+      SqfliteManager.translationTable,
+      where: 'comicName = ? and chapter = ? and imgName = ?',
+      whereArgs: [comicName, chapter, imgName],
+    );
+
+    List<Words> res;
+
+    if (resDB.length == 0) {
+      var _transWords = await getTransInfo(getBase64(), 1);
+      res = _transWords;
+
+      await db.insert(SqfliteManager.translationTable, {
+        'comicName': comicName,
+        'chapter': chapter,
+        'imgName': imgName,
+        'words': json.encode(_transWords)
+      });
+      print('$imgName insert success!');
+    } else {
+      res = json
+          .decode(resDB[0]['words'])
+          .map<Words>(
+            (json) => Words.fromJson(json),
+          )
+          .toList();
+      print('get data in sqlite');
+    }
 
     setState(() {
-      transWords = _transWords;
+      transWords = res;
     });
   }
 
@@ -315,7 +346,6 @@ class _ImageDetailState extends State<ImageDetail> {
 
   /// 翻译页面
   Widget transSection(ComicModel comic) {
-    // var decodedImage = await decodeImageFromList(image.readAsBytesSync())
     var image = File(filePath);
 
     return showTrans

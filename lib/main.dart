@@ -6,6 +6,7 @@ import 'package:my_app/cart/screen/cart.dart';
 import 'package:my_app/comic/models/comic.dart';
 import 'package:my_app/photoHttp.dart';
 import 'package:my_app/comic/screen/home.dart' as comic;
+import 'package:my_app/comic/screen/chapterList.dart' as chapterList;
 import 'package:my_app/comic/screen/imageList.dart' as imageList;
 import 'package:provider/provider.dart';
 import 'cart/screen/catalog.dart';
@@ -52,10 +53,19 @@ class MyApp extends StatelessWidget {
             var id = uri.pathSegments[1];
             return MaterialPageRoute(
                 builder: (context) => DetailScreen(id: id));
-            // Handle '/imageList/:path'
+
+            // Handle '/chapterList/:path'
           } else if (uri.pathSegments.length == 2 &&
-              uri.pathSegments.first == 'imageList') {
+              uri.pathSegments.first == 'chapterList') {
             var path = uri.pathSegments[1];
+            return MaterialPageRoute(
+                builder: (context) => chapterList.ChapterList(comicPath: path));
+
+            // Handle '/imageList/:path'
+          } else if (uri.pathSegments.length == 3 &&
+              uri.pathSegments.first == 'imageList') {
+            var path = '${uri.pathSegments[1]}/${uri.pathSegments[2]}';
+            print(uri.pathSegments);
             return MaterialPageRoute(
                 builder: (context) => imageList.ImageList(path: path));
           }

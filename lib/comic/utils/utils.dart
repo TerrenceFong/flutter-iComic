@@ -17,6 +17,13 @@ class Words {
       location: Location.fromJson(json['location']),
     );
   }
+
+  Map toJson() {
+    return {
+      'words': words,
+      'location': location.toMap(),
+    };
+  }
 }
 
 class Location {

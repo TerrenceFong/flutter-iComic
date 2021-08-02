@@ -1,30 +1,31 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:my_app/comic/utils/sqflite_db.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import "package:collection/collection.dart";
 
-class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+class ChapterList extends StatefulWidget {
+  final String comicPath;
+
+  const ChapterList({Key? key, required this.comicPath}) : super(key: key);
 
   @override
-  _HomeState createState() => _HomeState();
+  _ChapterListState createState() => _ChapterListState(comicPath);
 }
 
-class _HomeState extends State<Home> {
-  List<Map<String, String>> comicList = [];
+class _ChapterListState extends State<ChapterList> {
+  final String comicPath;
+  List<Map<String, String>> chapterList = [];
+
+  _ChapterListState(this.comicPath);
 
   @override
   void initState() {
     super.initState();
-    print('comicList');
+    print('chapterList');
 
     getRootInfo();
-
-    // 初始化数据库
-    SqfliteManager.getInstance();
   }
 
   Future<String> localPath() async {
@@ -36,15 +37,15 @@ class _HomeState extends State<Home> {
   Future<void> getRootInfo() async {
     final path = await localPath();
 
-    final dir = Directory('$path');
-    print('root: $dir');
+    final dir = Directory('$path/$comicPath');
+    print('comic: $dir');
 
     List<Map<String, String>> _items = [];
 
     await for (var entity in dir.list(followLinks: false)) {
       final isDir = await FileSystemEntity.isDirectory(entity.path);
       final dirname = p.basename(entity.path);
-      print('dirname: $dirname');
+
       if (isDir == true) {
         _items.add({'name': dirname, 'path': entity.path});
       }
@@ -53,7 +54,7 @@ class _HomeState extends State<Home> {
     _items.sort((a, b) => compareAsciiUpperCase(a['name']!, b['name']!));
 
     setState(() {
-      comicList = _items;
+      chapterList = _items;
     });
   }
 
@@ -62,18 +63,18 @@ class _HomeState extends State<Home> {
     print('build');
     return Scaffold(
       appBar: AppBar(
-        title: Text('Comic Lists'),
+        title: Text(comicPath),
       ),
       body: ListView.builder(
         // Add a key to the ListView. This makes it possible to
         // find the list and scroll through it in the tests.
         key: const Key('long_list'),
-        itemCount: comicList.length,
+        itemCount: chapterList.length,
         itemBuilder: (context, index) {
           return ListTile(
             leading: const Icon(Icons.folder),
             title: Text(
-              comicList[index]['name']!,
+              chapterList[index]['name']!,
               // Add a key to the Text widget for each item. This makes
               // it possible to look for a particular item in the list
               // and verify that the text is correct
@@ -82,7 +83,7 @@ class _HomeState extends State<Home> {
             onTap: () {
               Navigator.pushNamed(
                 context,
-                '/chapterList/${comicList[index]["name"]}',
+                '/imageList/$comicPath/${chapterList[index]["name"]}',
               );
             },
           );
