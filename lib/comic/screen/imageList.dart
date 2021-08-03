@@ -13,28 +13,38 @@ import 'dart:convert';
 
 class ImageList extends StatefulWidget {
   final String path;
+  final int page;
 
-  const ImageList({Key? key, required this.path}) : super(key: key);
+  const ImageList({Key? key, required this.path, required this.page})
+      : super(key: key);
 
   @override
-  _ImageListState createState() => _ImageListState(path);
+  _ImageListState createState() => _ImageListState(path, page);
 }
 
 class _ImageListState extends State<ImageList> {
   final String path;
+  final int page;
+
   List<String> imageData = [];
-  String contentText = "正在加载数据";
   ScrollController _scrollController = ScrollController();
   double screenWidth = window.physicalSize.width / window.devicePixelRatio;
 
-  _ImageListState(this.path);
+  late Offset pointerStart;
+  late Offset pointerEnd;
+  double touchRangeX = 0;
+  double nextOffset = 0;
+  int lastPage = 0;
+  late int dbPageId;
+
+  _ImageListState(this.path, this.page);
 
   @override
   void initState() {
     super.initState();
     print('imageList');
 
-    getRootInfo();
+    getImageInfo();
   }
 
   Future<String> localPath() async {
@@ -43,7 +53,7 @@ class _ImageListState extends State<ImageList> {
     return directory.path;
   }
 
-  Future<void> getRootInfo() async {
+  Future<void> getImageInfo() async {
     final rootPath = await localPath();
 
     final dir = Directory('$rootPath/$path');
@@ -58,21 +68,42 @@ class _ImageListState extends State<ImageList> {
 
     _imageData.sort();
 
+    /// 查看是否第一次打开
+    /// 如果第一次打开，则先插入一条数据
+    /// 后续翻页时对该条数据做更新
+    SqfliteManager db = await SqfliteManager.getInstance();
+    List<String> pathList = path.split('/');
+    String comicName = pathList[0];
+    String chapter = pathList[1];
+
+    var queryRes = await db.query(
+      SqfliteManager.comicTable,
+      where: 'comicName = ? and chapter = ?',
+      whereArgs: [comicName, chapter],
+    );
+
+    if (queryRes.length == 0) {
+      dbPageId = await db.insert(
+        SqfliteManager.comicTable,
+        {
+          'comicName': comicName,
+          'chapter': chapter,
+          'imgPage': 1,
+        },
+      );
+    } else {
+      // 理论上只有 1 条
+      dbPageId = queryRes[0]['id'];
+    }
+
     setState(() {
       imageData = _imageData;
 
       // 滚动到指定位置
-      // 该值从本地获取
-      // _scrollController.jumpTo(3 * screenWidth);
-      // lastPage = 3;
+      lastPage = page - 1;
+      _scrollController.jumpTo(lastPage * screenWidth);
     });
   }
-
-  late Offset pointerStart;
-  late Offset pointerEnd;
-  double touchRangeX = 0;
-  double nextOffset = 0;
-  int lastPage = 0;
 
   PointerDownEventListener getPointDownListenerInHorizontal() {
     return (event) {
@@ -108,11 +139,13 @@ class _ImageListState extends State<ImageList> {
           if (lastPage == 0) return;
           lastPage = lastPage - 1;
           animateToOffset(_scrollController, lastPage * screenWidth, () {});
+          savePage(lastPage);
         } else if (pointerEnd.dx > screenWidth / 3 * 2) {
           print('当前点击右侧');
           if (lastPage == imageData.length - 1) return;
           lastPage = lastPage + 1;
           animateToOffset(_scrollController, lastPage * screenWidth, () {});
+          savePage(lastPage);
         }
 
         return;
@@ -132,15 +165,32 @@ class _ImageListState extends State<ImageList> {
         print('从左到右 上一页');
         lastPage = lastPage - 1;
         animateToOffset(_scrollController, lastPage * screenWidth, () {});
+        savePage(lastPage);
         print('lastPage: $lastPage');
       } else if (touchRangeX > 0 && lastPage < imageData.length - 1) {
         // 从右到左
         print('从右到左 下一页');
         lastPage = lastPage + 1;
         animateToOffset(_scrollController, lastPage * screenWidth, () {});
+        savePage(lastPage);
         print('lastPage: $lastPage');
       }
     };
+  }
+
+  /// 保存当前页数
+  void savePage(int currentPage) async {
+    SqfliteManager db = await SqfliteManager.getInstance();
+    List<String> pathList = path.split('/');
+    db.update(
+      SqfliteManager.comicTable,
+      {
+        'comicName': pathList[0],
+        'chapter': pathList[1],
+        'imgPage': currentPage + 1,
+      },
+      dbPageId,
+    );
   }
 
   void animateToOffset(ScrollController controller, double offset,

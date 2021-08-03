@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:my_app/comic/utils/sqflite_db.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import "package:collection/collection.dart";
@@ -18,6 +19,8 @@ class _ChapterListState extends State<ChapterList> {
   final String comicPath;
   List<Map<String, String>> chapterList = [];
 
+  Map<String, int> chapterPage = {};
+
   _ChapterListState(this.comicPath);
 
   @override
@@ -25,7 +28,7 @@ class _ChapterListState extends State<ChapterList> {
     super.initState();
     print('chapterList');
 
-    getRootInfo();
+    getChapterInfo();
   }
 
   Future<String> localPath() async {
@@ -34,7 +37,7 @@ class _ChapterListState extends State<ChapterList> {
     return directory.path;
   }
 
-  Future<void> getRootInfo() async {
+  Future<void> getChapterInfo() async {
     final path = await localPath();
 
     final dir = Directory('$path/$comicPath');
@@ -53,8 +56,29 @@ class _ChapterListState extends State<ChapterList> {
 
     _items.sort((a, b) => compareAsciiUpperCase(a['name']!, b['name']!));
 
+    await getInfoDB();
+
     setState(() {
       chapterList = _items;
+    });
+  }
+
+  Future<void> getInfoDB() async {
+    SqfliteManager db = await SqfliteManager.getInstance();
+    List<Map<String, dynamic>> resDB = await db.query(
+      SqfliteManager.comicTable,
+      where: 'comicName = ?',
+      whereArgs: [comicPath],
+    );
+
+    Map<String, int> _chapterPage = {};
+    print('resDB: $resDB');
+    for (var i = 0; i < resDB.length; i++) {
+      var e = resDB[i];
+      _chapterPage[e['chapter']] = int.parse(e['imgPage']);
+    }
+    setState(() {
+      chapterPage = _chapterPage;
     });
   }
 
@@ -81,9 +105,46 @@ class _ChapterListState extends State<ChapterList> {
               key: Key('item_${index}_text'),
             ),
             onTap: () {
-              Navigator.pushNamed(
-                context,
-                '/imageList/$comicPath/${chapterList[index]["name"]}',
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) {
+                  return Container(
+                    child: SafeArea(
+                      child: Wrap(
+                        children: <Widget>[
+                          ListTile(
+                            title: Center(
+                              child: Text('从头开始阅读'),
+                            ),
+                            onTap: () {
+                              Navigator.pop(context);
+                              Navigator.pushNamed(
+                                context,
+                                '/imageList/$comicPath/${chapterList[index]["name"]}/1',
+                              ).then((value) => getInfoDB());
+                            },
+                          ),
+                          chapterPage[chapterList[index]["name"]] != null
+                              ? ListTile(
+                                  title: Center(
+                                    child: Text(
+                                      '继续阅读（从第${chapterPage[chapterList[index]["name"]]}页开始）',
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/imageList/$comicPath/${chapterList[index]["name"]}/${chapterPage[chapterList[index]["name"]]}',
+                                    ).then((value) => getInfoDB());
+                                  },
+                                )
+                              : Container(),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               );
             },
           );

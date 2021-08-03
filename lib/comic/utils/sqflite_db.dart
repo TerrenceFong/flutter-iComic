@@ -7,6 +7,9 @@ class SqfliteManager {
   /// sql 文件的名字
   static final sqlName = "comicTrans.db";
 
+  /// 漫画数据表名
+  static final comicTable = "comic";
+
   /// 翻译表名
   static final translationTable = "translation";
 
@@ -17,7 +20,21 @@ class SqfliteManager {
   /// id
   /// comicName 漫画名
   /// chapter   章节
-  /// imgName      当页路径
+  /// imgPage   看到哪一页
+  static String _createComicTable = '''
+    create table $comicTable (
+      id integer primary key,
+      comicName text not null,
+      chapter text not null,
+      imgPage text not null
+    )
+  ''';
+
+  /// 创建 table
+  /// id
+  /// comicName 漫画名
+  /// chapter   章节
+  /// imgName   当页路径
   /// words     当页翻译
   static String _createTranslationTable = '''
     create table $translationTable (
@@ -47,7 +64,21 @@ class SqfliteManager {
         dbPath,
         version: 1,
         onCreate: (db, version) async {
-          /// 如果不存在 当前的表 就创建需要的表
+          /// 首次初始化时
+          /// 如果不存在当前的表, 就创建需要的表
+          if (await manager.isTableExit(db, comicTable) == false) {
+            await db.execute(_createComicTable);
+          }
+          if (await manager.isTableExit(db, translationTable) == false) {
+            await db.execute(_createTranslationTable);
+          }
+        },
+        onOpen: (db) async {
+          /// 后续每次首先打开时
+          /// 如果不存在当前的表, 就创建需要的表
+          if (await manager.isTableExit(db, comicTable) == false) {
+            await db.execute(_createComicTable);
+          }
           if (await manager.isTableExit(db, translationTable) == false) {
             await db.execute(_createTranslationTable);
           }

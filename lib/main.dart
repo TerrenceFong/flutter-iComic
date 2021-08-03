@@ -61,13 +61,18 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute(
                 builder: (context) => chapterList.ChapterList(comicPath: path));
 
-            // Handle '/imageList/:path'
-          } else if (uri.pathSegments.length == 3 &&
+            // Handle '/imageList/:comicPath/:chapterPath/:page'
+          } else if (uri.pathSegments.length == 4 &&
               uri.pathSegments.first == 'imageList') {
-            var path = '${uri.pathSegments[1]}/${uri.pathSegments[2]}';
+            String path = '${uri.pathSegments[1]}/${uri.pathSegments[2]}';
+            int page = int.parse(uri.pathSegments[3]);
             print(uri.pathSegments);
             return MaterialPageRoute(
-                builder: (context) => imageList.ImageList(path: path));
+              builder: (context) => imageList.ImageList(
+                path: path,
+                page: page,
+              ),
+            );
           }
         },
       ),
