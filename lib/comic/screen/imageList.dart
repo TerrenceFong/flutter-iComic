@@ -420,15 +420,18 @@ class _ImageDetailState extends State<ImageDetail> {
                             top: calcSize(e.location.top, snapshot.data,
                                 offset: true),
                             child: Container(
-                              height:
-                                  calcSize(e.location.height, snapshot.data),
+                              // height:
+                              //     calcSize(e.location.height, snapshot.data),
                               width: calcSize(e.location.width, snapshot.data),
                               color: Colors.red,
+                              padding: EdgeInsets.symmetric(vertical: 2),
                               child: Text(
                                 e.words,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 9,
                                   color: Colors.black,
+                                  height: 1.1,
                                 ),
                               ),
                             ),
