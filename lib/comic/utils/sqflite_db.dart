@@ -19,7 +19,7 @@ class SqfliteManager {
   /// chapter   章节
   /// imgName      当页路径
   /// words     当页翻译
-  static String createTranslationTable = '''
+  static String _createTranslationTable = '''
     create table $translationTable (
       id integer primary key,
       comicName text not null,
@@ -49,7 +49,7 @@ class SqfliteManager {
         onCreate: (db, version) async {
           /// 如果不存在 当前的表 就创建需要的表
           if (await manager.isTableExit(db, translationTable) == false) {
-            await db.execute(createTranslationTable);
+            await db.execute(_createTranslationTable);
           }
         },
       );
@@ -138,7 +138,7 @@ class SqfliteManager {
 
   /// 判断是否存在 数据库表
   Future<bool> isTableExit(Database db, String tableName) async {
-    var result = await db.rawQuery(
+    List<Map<String, Object?>> result = await db.rawQuery(
         "select * from Sqlite_master where type = 'table' and name = '$tableName'");
     return result.length > 0;
   }

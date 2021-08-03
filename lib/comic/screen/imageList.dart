@@ -51,7 +51,8 @@ class _ImageListState extends State<ImageList> {
 
     final List<String> _imageData = [];
 
-    await for (var entity in dir.list(recursive: true, followLinks: false)) {
+    await for (FileSystemEntity entity
+        in dir.list(recursive: true, followLinks: false)) {
       _imageData.add(entity.path);
     }
 
@@ -160,7 +161,7 @@ class _ImageListState extends State<ImageList> {
   @override
   Widget build(BuildContext context) {
     print('imageList build');
-    var comic = context.watch<ComicModel>();
+    ComicModel comic = context.watch<ComicModel>();
 
     return Material(
       child: Container(
@@ -205,7 +206,7 @@ Future<List<Words>> getTransInfo(String image, int type) async {
     final wordsData =
         parsed.map<Words>((json) => Words.fromJson(json)).toList();
 
-    var transWords = await translateWords(arrangeWords(wordsData), true);
+    List<Words> transWords = await translateWords(arrangeWords(wordsData));
 
     return transWords;
   } else {
@@ -265,13 +266,13 @@ class _ImageDetailState extends State<ImageDetail> {
     final directory = await getApplicationDocumentsDirectory();
 
     String fullPath = filePath.split(directory.path)[1];
-    var uri = Uri.parse(fullPath);
+    Uri uri = Uri.parse(fullPath);
     String comicName = uri.pathSegments[0];
     String chapter = uri.pathSegments[1];
     String imgName = uri.pathSegments[2];
 
-    var db = await SqfliteManager.getInstance();
-    var resDB = await db.query(
+    SqfliteManager db = await SqfliteManager.getInstance();
+    List<Map<String, dynamic>> resDB = await db.query(
       SqfliteManager.translationTable,
       where: 'comicName = ? and chapter = ? and imgName = ?',
       whereArgs: [comicName, chapter, imgName],
@@ -280,7 +281,7 @@ class _ImageDetailState extends State<ImageDetail> {
     List<Words> res;
 
     if (resDB.length == 0) {
-      var _transWords = await getTransInfo(getBase64(), 1);
+      List<Words> _transWords = await getTransInfo(getBase64(), 1);
       res = _transWords;
 
       await db.insert(SqfliteManager.translationTable, {
@@ -346,7 +347,7 @@ class _ImageDetailState extends State<ImageDetail> {
 
   /// 翻译页面
   Widget transSection(ComicModel comic) {
-    var image = File(filePath);
+    File image = File(filePath);
 
     return showTrans
         ? FutureBuilder(
@@ -393,7 +394,7 @@ class _ImageDetailState extends State<ImageDetail> {
 
   @override
   Widget build(BuildContext context) {
-    var comic = context.watch<ComicModel>();
+    ComicModel comic = context.watch<ComicModel>();
 
     return Stack(
       children: <Widget>[

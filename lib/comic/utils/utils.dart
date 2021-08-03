@@ -1,5 +1,5 @@
 import 'dart:math' as math;
-import 'package:translator/translator.dart';
+import 'dart:typed_data';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
@@ -84,7 +84,7 @@ List<Words> arrangeWords(List<Words> words) {
       'height': 0
     };
 
-    for (var i = 0; i < words.length; i++) {
+    for (int i = 0; i < words.length; i++) {
       final e = words[i];
       // 第一项先入库
       if (i == 0) {
@@ -131,22 +131,22 @@ List<Words> arrangeWords(List<Words> words) {
 
 class MD5Util {
   static String generateMd5(String data) {
-    var content = new Utf8Encoder().convert(data);
-    var digest = md5.convert(content);
+    Uint8List content = new Utf8Encoder().convert(data);
+    Digest digest = md5.convert(content);
     // 这里其实就是 digest.toString()
     return hex.encode(digest.bytes);
   }
 }
 
-Future<String> bdTrans(String query) async {
-  var appid = '20210729000900971';
-  var key = 'ZGdTJRGaQi9FxI4lMZgM';
-  var salt = DateTime.now().millisecondsSinceEpoch.toString();
-  var str1 = appid + query + salt + key;
-  var sign = MD5Util.generateMd5(str1);
+Future<List<String>> bdTrans(String query, {bool? isMulti}) async {
+  String appid = '20210729000900971';
+  String key = 'ZGdTJRGaQi9FxI4lMZgM';
+  String salt = DateTime.now().millisecondsSinceEpoch.toString();
+  String str1 = appid + query + salt + key;
+  String sign = MD5Util.generateMd5(str1);
 
-  var from = 'jp';
-  var to = 'zh';
+  String from = 'jp';
+  String to = 'zh';
 
   final res = await http.Client().get(
     Uri.parse(
@@ -155,10 +155,13 @@ Future<String> bdTrans(String query) async {
 
   if (res.statusCode == 200) {
     Utf8Decoder utf8decoder = Utf8Decoder();
-    final parsed = json
-        .decode(utf8decoder.convert(res.bodyBytes))['trans_result'][0]['dst'];
-    print('bdt: $parsed');
-    return parsed;
+    final parsed = json.decode(utf8decoder.convert(res.bodyBytes));
+
+    List<String> transResult =
+        (parsed['trans_result'] as List).map<String>((e) => e['dst']).toList();
+    print('bdt: $transResult');
+
+    return transResult;
   } else {
     // If the server did not return a 200 OK response,
     // then throw an exception.
@@ -167,26 +170,23 @@ Future<String> bdTrans(String query) async {
 }
 
 /// 翻译 List
-Future<List<Words>> translateWords(List<Words> words, bool useBd) async {
-  final translator = GoogleTranslator();
-
+Future<List<Words>> translateWords(List<Words> words) async {
   List<Words> transWords = [];
 
-  for (Words e in words) {
-    String transWord = '';
-    try {
-      transWord = !useBd
-          ? (await translator.translate(e.words, from: 'ja', to: 'zh-cn'))
-              .toString()
-          : await bdTrans(e.words);
-    } catch (e) {
-      print('translate word error: $e');
-    }
+  List<String> wordsList = [];
 
+  // 收集所有文案 一次性翻译，避免多次查询
+  for (Words e in words) {
+    wordsList.add(e.words);
+  }
+
+  List<String> transList = await bdTrans(wordsList.join('\n'), isMulti: true);
+
+  for (int i = 0; i < words.length; i++) {
     transWords.add(
       Words(
-        words: transWord,
-        location: e.location,
+        words: transList[i],
+        location: words[i].location,
       ),
     );
   }

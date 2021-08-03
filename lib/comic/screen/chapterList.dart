@@ -42,7 +42,7 @@ class _ChapterListState extends State<ChapterList> {
 
     List<Map<String, String>> _items = [];
 
-    await for (var entity in dir.list(followLinks: false)) {
+    await for (FileSystemEntity entity in dir.list(followLinks: false)) {
       final isDir = await FileSystemEntity.isDirectory(entity.path);
       final dirname = p.basename(entity.path);
 
