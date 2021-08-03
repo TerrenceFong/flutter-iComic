@@ -294,6 +294,8 @@ class _ImageDetailState extends State<ImageDetail> {
   bool showSetting = false;
   bool showTrans = true;
   List<Words> transWords = [];
+  // load
+  bool loading = false;
 
   _ImageDetailState(this.filePath, this.getPointDown, this.getPointUp);
 
@@ -332,7 +334,14 @@ class _ImageDetailState extends State<ImageDetail> {
     List<Words> res;
 
     if (resDB.length == 0) {
+      setState(() {
+        loading = true;
+      });
       List<Words> _transWords = await getTransInfo(getBase64(), 0);
+      setState(() {
+        loading = false;
+      });
+
       res = _transWords;
 
       await db.insert(SqfliteManager.translationTable, {
@@ -380,14 +389,28 @@ class _ImageDetailState extends State<ImageDetail> {
                 });
               },
               child: SafeArea(
-                child: Container(
-                  height: screenHeight,
-                  width: screenWidth,
-                  color: Color.fromARGB(80, 0, 0, 0),
-                  child: Text(
-                    'ffff',
-                    style: TextStyle(
-                      color: Colors.white,
+                child: Center(
+                  child: Container(
+                    height: screenHeight,
+                    width: screenWidth,
+                    color: Color.fromARGB(170, 0, 0, 0),
+                    child: Column(
+                      children: [
+                        ...(transWords.map(
+                          (e) => Container(
+                            padding: EdgeInsets.all(5),
+                            child: Text(
+                              e.words,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ))
+                      ],
                     ),
                   ),
                 ),
@@ -486,6 +509,7 @@ class _ImageDetailState extends State<ImageDetail> {
             getPointUp(e);
           },
           child: Stack(
+            alignment: Alignment.topCenter,
             children: [
               Center(
                 child: Container(
@@ -496,6 +520,11 @@ class _ImageDetailState extends State<ImageDetail> {
                 ),
               ),
               transSection(comic),
+              loading
+                  ? Positioned(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  : Container(),
             ],
           ),
         ),
