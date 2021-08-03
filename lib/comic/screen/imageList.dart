@@ -243,8 +243,9 @@ Future<List<Words>> getTransInfo(String image, int type) async {
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
-    body: jsonEncode(<String, String>{
+    body: jsonEncode(<String, dynamic>{
       'image': image,
+      'type': type,
     }),
   );
 
@@ -331,7 +332,7 @@ class _ImageDetailState extends State<ImageDetail> {
     List<Words> res;
 
     if (resDB.length == 0) {
-      List<Words> _transWords = await getTransInfo(getBase64(), 1);
+      List<Words> _transWords = await getTransInfo(getBase64(), 0);
       res = _transWords;
 
       await db.insert(SqfliteManager.translationTable, {
@@ -378,11 +379,18 @@ class _ImageDetailState extends State<ImageDetail> {
                   showSetting = false;
                 });
               },
-              child: Container(
-                height: screenHeight,
-                width: screenWidth,
-                color: Color.fromARGB(80, 0, 0, 0),
-                child: Text('ffff'),
+              child: SafeArea(
+                child: Container(
+                  height: screenHeight,
+                  width: screenWidth,
+                  color: Color.fromARGB(80, 0, 0, 0),
+                  child: Text(
+                    'ffff',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
               ),
             ),
           )
