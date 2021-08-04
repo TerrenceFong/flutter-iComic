@@ -143,6 +143,7 @@ class MD5Util {
 }
 
 Future<List<String>> bdTrans(String query, {bool? isMulti}) async {
+  String decodeQuery = Uri.encodeComponent(query);
   String appid = '20210729000900971';
   String key = 'ZGdTJRGaQi9FxI4lMZgM';
   String salt = DateTime.now().millisecondsSinceEpoch.toString();
@@ -154,7 +155,8 @@ Future<List<String>> bdTrans(String query, {bool? isMulti}) async {
 
   final res = await http.Client().get(
     Uri.parse(
-        'https://fanyi-api.baidu.com/api/trans/vip/translate?q=$query&appid=$appid&salt=$salt&from=$from&to=$to&sign=$sign'),
+      'https://fanyi-api.baidu.com/api/trans/vip/translate?q=$decodeQuery&appid=$appid&salt=$salt&from=$from&to=$to&sign=$sign',
+    ),
   );
 
   if (res.statusCode == 200) {

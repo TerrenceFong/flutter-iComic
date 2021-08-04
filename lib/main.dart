@@ -8,6 +8,7 @@ import 'package:my_app/photoHttp.dart';
 import 'package:my_app/comic/screen/home.dart' as comic;
 import 'package:my_app/comic/screen/chapterList.dart' as chapterList;
 import 'package:my_app/comic/screen/imageList.dart' as imageList;
+import 'package:my_app/comic/screen/previewList.dart' as previewList;
 import 'package:my_app/comic/screen/setting.dart' as setting;
 import 'package:provider/provider.dart';
 import 'cart/screen/catalog.dart';
@@ -62,6 +63,17 @@ class MyApp extends StatelessWidget {
             var path = uri.pathSegments[1];
             return MaterialPageRoute(
                 builder: (context) => chapterList.ChapterList(comicPath: path));
+
+            // Handle '/previewList/:comicPath/:chapterPath/'
+          } else if (uri.pathSegments.length == 3 &&
+              uri.pathSegments.first == 'previewList') {
+            String path = '${uri.pathSegments[1]}/${uri.pathSegments[2]}';
+            print(uri.pathSegments);
+            return MaterialPageRoute(
+              builder: (context) => previewList.PreviewList(
+                path: path,
+              ),
+            );
 
             // Handle '/imageList/:comicPath/:chapterPath/:page'
           } else if (uri.pathSegments.length == 4 &&
