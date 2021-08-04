@@ -370,6 +370,58 @@ class _ImageDetailState extends State<ImageDetail> {
     });
   }
 
+  /// 重新请求翻译
+  /// thisAccuration    true - 全局精度 false - 取反精度
+  void resetWords(bool thisAccuration) async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    String fullPath = filePath.split(directory.path)[1];
+    Uri uri = Uri.parse(fullPath);
+    String comicName = uri.pathSegments[0];
+    String chapter = uri.pathSegments[1];
+    String imgName = uri.pathSegments[2];
+
+    SqfliteManager db = await SqfliteManager.getInstance();
+    // 删除已有的
+    await db.customDelete(
+      SqfliteManager.translationTable,
+      'comicName = ? and chapter = ? and imgName = ?',
+      [comicName, chapter, imgName],
+    );
+
+    List<Words> res;
+
+    setState(() {
+      loading = true;
+    });
+    List<Words> _transWords = await getTransInfo(
+      getBase64(),
+      // 取反
+      thisAccuration
+          ? Global.accuration
+          : Global.accuration == 1
+              ? 0
+              : 1,
+    );
+    setState(() {
+      loading = false;
+    });
+
+    res = _transWords;
+
+    await db.insert(SqfliteManager.translationTable, {
+      'comicName': comicName,
+      'chapter': chapter,
+      'imgName': imgName,
+      'words': json.encode(_transWords)
+    });
+    print('$imgName insert success!');
+
+    setState(() {
+      transWords = res;
+    });
+  }
+
   // 图片转 base64
   String getBase64() {
     final bytes = File(this.filePath).readAsBytesSync();
@@ -480,6 +532,35 @@ class _ImageDetailState extends State<ImageDetail> {
         : Container();
   }
 
+  List<String> transMap = ["高精度", "通用版"];
+
+  /// 重新翻译弹窗
+  void _showDialog(bool thisAccuration) {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('重新获取翻译'),
+        content: Text(
+            '是否重新获取${thisAccuration ? transMap[Global.accuration] : Global.accuration == 1 ? transMap[0] : transMap[1]}翻译？'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, '取消');
+            },
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, '确认');
+              resetWords(thisAccuration);
+            },
+            child: const Text('确认'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ComicModel comic = context.watch<ComicModel>();
@@ -499,14 +580,33 @@ class _ImageDetailState extends State<ImageDetail> {
 
             // 左右侧在父级处理
             // 中间区域检测
-            if (dx > centerX[0] &&
+            if (dx > centerX[0] && dx < centerX[1] && dy > centerY[1]) {
+              print('点击了中下位置: ${e.localPosition.dx}, ${e.localPosition.dy}');
+              setState(() {
+                comic.isScroll = false;
+                showSetting = true;
+              });
+            } else if (dx > centerX[0] &&
                 dx < centerX[1] &&
                 dy > centerY[0] &&
                 dy < centerY[1]) {
               print('点击了中心位置: ${e.localPosition.dx}, ${e.localPosition.dy}');
               setState(() {
-                comic.isScroll = false;
-                showSetting = true;
+                showTrans = !showTrans;
+              });
+            } else if (dx > (screenWidth / 2) &&
+                dx <= centerX[1] &&
+                dy < centerY[0]) {
+              print('点击了中上偏右位置: ${e.localPosition.dx}, ${e.localPosition.dy}');
+              setState(() {
+                _showDialog(false);
+              });
+            } else if (dx >= centerX[0] &&
+                dx < (screenWidth / 2) &&
+                dy < centerY[0]) {
+              print('点击了中上偏左位置: ${e.localPosition.dx}, ${e.localPosition.dy}');
+              setState(() {
+                _showDialog(true);
               });
             }
 
