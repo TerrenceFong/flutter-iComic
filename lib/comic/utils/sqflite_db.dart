@@ -1,11 +1,15 @@
 import 'dart:async';
 
+import 'package:my_app/comic/utils/utils.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
 class SqfliteManager {
   /// sql 文件的名字
   static final sqlName = "comicTrans.db";
+
+  /// 配置表名
+  static final configTable = "config";
 
   /// 漫画数据表名
   static final comicTable = "comic";
@@ -16,7 +20,21 @@ class SqfliteManager {
   Database? db;
   static SqfliteManager? _instance;
 
-  /// 创建 table
+  /// 创建 config table
+  /// id          固定为 1 ，全局只有一条配置
+  /// accuration  翻译精度   高精度-0  标准-1
+  /// nearTop     算法相邻顶部的值  default 5
+  /// nearLeft    算法相邻左侧的值  default 7
+  static String _createConfigTable = '''
+    create table $configTable (
+      id integer primary key,
+      accuration integer not null,
+      nearTop integer not null,
+      nearLeft integer not null
+    )
+  ''';
+
+  /// 创建 comic table
   /// id
   /// comicName 漫画名
   /// chapter   章节
@@ -30,7 +48,7 @@ class SqfliteManager {
     )
   ''';
 
-  /// 创建 table
+  /// 创建 translation table
   /// id
   /// comicName 漫画名
   /// chapter   章节
@@ -66,6 +84,20 @@ class SqfliteManager {
         onCreate: (db, version) async {
           /// 首次初始化时
           /// 如果不存在当前的表, 就创建需要的表
+          if (await manager.isTableExit(db, configTable) == false) {
+            await db.execute(_createConfigTable);
+            // 初始化配置数据
+            await db.insert(
+              configTable,
+              {
+                'id': CONFIG_ID,
+                'accuration': 0,
+                'nearTop': 5,
+                'nearLeft': 7,
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
           if (await manager.isTableExit(db, comicTable) == false) {
             await db.execute(_createComicTable);
           }
@@ -76,6 +108,20 @@ class SqfliteManager {
         onOpen: (db) async {
           /// 后续每次首先打开时
           /// 如果不存在当前的表, 就创建需要的表
+          if (await manager.isTableExit(db, configTable) == false) {
+            await db.execute(_createConfigTable);
+            // 初始化配置数据
+            await db.insert(
+              configTable,
+              {
+                'id': CONFIG_ID,
+                'accuration': 0,
+                'nearTop': 5,
+                'nearLeft': 7,
+              },
+              conflictAlgorithm: ConflictAlgorithm.replace,
+            );
+          }
           if (await manager.isTableExit(db, comicTable) == false) {
             await db.execute(_createComicTable);
           }

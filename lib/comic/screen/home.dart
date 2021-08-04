@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:my_app/comic/common/global.dart';
 import 'package:my_app/comic/utils/sqflite_db.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -31,7 +32,7 @@ class _HomeState extends State<Home> {
     getRootInfo();
 
     // 初始化数据库
-    SqfliteManager.getInstance();
+    Global.init();
   }
 
   Future<String> localPath() async {
@@ -132,6 +133,20 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Comic Lists'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(
+              Icons.settings,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              Navigator.pushNamed(
+                context,
+                '/setting',
+              );
+            },
+          )
+        ],
       ),
       body: ListView.builder(
         key: key1,

@@ -8,6 +8,7 @@ import 'package:my_app/photoHttp.dart';
 import 'package:my_app/comic/screen/home.dart' as comic;
 import 'package:my_app/comic/screen/chapterList.dart' as chapterList;
 import 'package:my_app/comic/screen/imageList.dart' as imageList;
+import 'package:my_app/comic/screen/setting.dart' as setting;
 import 'package:provider/provider.dart';
 import 'cart/screen/catalog.dart';
 import 'testFileImage.dart' as TestFileImage;
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
         theme: appTheme,
         routes: {
           '/': (context) => comic.Home(),
+          '/setting': (context) => setting.Setting(),
           // '/': (context) => HomeScreen(),
           // '/details': (context) => DetailScreen(),
           '/test-fileImage': (context) => TestFileImage.TestFileImage(),

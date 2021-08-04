@@ -5,6 +5,10 @@ import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:my_app/comic/common/global.dart';
+
+const CONFIG_ID = 1;
+
 class Words {
   String words;
   Location location;
@@ -93,9 +97,9 @@ List<Words> arrangeWords(List<Words> words) {
         targetPosition = e.location.toMap();
       } else {
         // 后续的跟前一项比较
-        if (nearInt(position['top'], e.location.top, 5) &&
-            nearInt(
-                position['left']! + position['width']!, e.location.left, 7)) {
+        if (nearInt(position['top'], e.location.top, Global.nearTop) &&
+            nearInt(position['left']! + position['width']!, e.location.left,
+                Global.nearLeft)) {
           word = e.words + word;
           position = e.location.toMap();
           targetPosition['width'] = targetPosition['width']! + e.location.width;

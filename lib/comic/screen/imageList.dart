@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:my_app/comic/common/global.dart';
 import 'package:my_app/comic/utils/sqflite_db.dart';
 import 'package:my_app/comic/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
@@ -337,7 +338,10 @@ class _ImageDetailState extends State<ImageDetail> {
       setState(() {
         loading = true;
       });
-      List<Words> _transWords = await getTransInfo(getBase64(), 0);
+      List<Words> _transWords = await getTransInfo(
+        getBase64(),
+        Global.accuration,
+      );
       setState(() {
         loading = false;
       });
