@@ -179,6 +179,10 @@ Future<List<String>> bdTrans(String query, {bool? isMulti}) async {
 Future<List<Words>> translateWords(List<Words> words) async {
   List<Words> transWords = [];
 
+  if (words.length == 0) {
+    return transWords;
+  }
+
   List<String> wordsList = [];
 
   // 收集所有文案 一次性翻译，避免多次查询
