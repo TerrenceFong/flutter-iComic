@@ -66,13 +66,13 @@ class _PreviewListState extends State<PreviewList> {
     String _comicName = pathList[0];
     String _chapter = pathList[1];
 
-    await getInfoDB();
-
     setState(() {
       comicName = _comicName;
       chapter = _chapter;
 
       imageData = _imageData;
+
+      getInfoDB();
     });
   }
 
@@ -122,6 +122,30 @@ class _PreviewListState extends State<PreviewList> {
         itemBuilder: (context, index) {
           return ListTile(
             title: Text(p.basename(imageData[index])),
+            subtitle: chapterPage[chapter] == null
+                ? Row(
+                    children: [
+                      Icon(
+                        Icons.circle_rounded,
+                        color: Colors.blue,
+                        size: 14,
+                      ),
+                    ],
+                  )
+                : Row(
+                    children: [
+                      Icon(
+                        Icons.circle_outlined,
+                        color: Colors.blue,
+                        size: 14,
+                      ),
+                      Container(
+                        child:
+                            Text('${chapterPage[chapter]}/${imageData.length}'),
+                        margin: const EdgeInsets.only(left: 8),
+                      ),
+                    ],
+                  ),
             leading: Image.file(File(imageData[index])),
             onTap: () {
               showModalBottomSheet(

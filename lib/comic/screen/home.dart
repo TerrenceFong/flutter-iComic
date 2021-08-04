@@ -92,6 +92,12 @@ class _HomeState extends State<Home> {
       'comicName = ?',
       [dirName],
     );
+    // 删除数据库已读章节页数
+    db.customDelete(
+      SqfliteManager.comicTable,
+      'comicName = ?',
+      [dirName],
+    );
   }
 
   void _showSnackBar(String action) {
