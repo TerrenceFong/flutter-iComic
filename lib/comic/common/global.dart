@@ -1,10 +1,17 @@
 import 'package:my_app/comic/utils/sqflite_db.dart';
-import 'package:my_app/comic/utils/utils.dart';
+
+/// 配置信息常量
+const CONFIG_ID = 1;
+const ACCURATION = 0;
+const NEAR_TOP = 5;
+const NEAR_LEFT = 7;
+const RE_RENDER_PAGE = 4;
 
 class Global {
-  static int accuration = 0;
-  static int nearTop = 5;
-  static int nearLeft = 7;
+  static late int accuration;
+  static late int nearTop;
+  static late int nearLeft;
+  static late int reRenderPage;
 
   // 初始化全局信息 在 home.dart 初始化时执行
   static void init() async {
@@ -18,5 +25,13 @@ class Global {
     accuration = config['accuration'];
     nearTop = config['nearTop'];
     nearLeft = config['nearLeft'];
+    reRenderPage = config['reRenderPage'] ?? 4;
+  }
+
+  static void reset() {
+    accuration = ACCURATION;
+    nearTop = NEAR_TOP;
+    nearLeft = NEAR_LEFT;
+    reRenderPage = RE_RENDER_PAGE;
   }
 }

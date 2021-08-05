@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/comic/common/global.dart';
 import 'package:my_app/comic/utils/sqflite_db.dart';
-import 'package:my_app/comic/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 
 class Setting extends StatefulWidget {
@@ -18,12 +17,16 @@ class _SettingState extends State<Setting> {
   bool isAccurate = true;
   late TextEditingController _controllerTop;
   late TextEditingController _controllerLeft;
+  late TextEditingController _controllerReRender;
 
   @override
   void initState() {
     isAccurate = Global.accuration == 0 ? true : false;
     _controllerTop = TextEditingController(text: Global.nearTop.toString());
     _controllerLeft = TextEditingController(text: Global.nearLeft.toString());
+    _controllerReRender = TextEditingController(
+      text: Global.reRenderPage.toString(),
+    );
     super.initState();
   }
 
@@ -78,6 +81,23 @@ class _SettingState extends State<Setting> {
     });
   }
 
+  void setReRender(String value) async {
+    var db = await SqfliteManager.getInstance();
+    var currentVal = int.parse(value);
+
+    await db.update(
+      SqfliteManager.configTable,
+      {
+        'reRenderPage': currentVal,
+      },
+      CONFIG_ID,
+    );
+
+    setState(() {
+      Global.reRenderPage = currentVal;
+    });
+  }
+
   void errorLogDialog() async {
     Future<List<String>> getInfo(String fileName) async {
       final directory = await getApplicationDocumentsDirectory();
@@ -123,6 +143,47 @@ class _SettingState extends State<Setting> {
         ),
       ),
     );
+  }
+
+  /// 还原默认配置
+  void resetConfigDialog() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => AlertDialog(
+        title: const Text('重置'),
+        content: Text('是否还原默认配置?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context, '取消');
+            },
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () async {
+              var db = await SqfliteManager.getInstance();
+              await SqfliteManager.reCreateConfigTable(db.db!);
+              await SqfliteManager.configTableInsertData(db.db!);
+              Global.reset();
+              resetSettingPage();
+
+              Navigator.pop(context, '确认');
+            },
+            child: const Text('确认'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 还原 setting 页面的信息
+  void resetSettingPage() {
+    setState(() {
+      isAccurate = Global.accuration == 0 ? true : false;
+      _controllerTop.text = Global.nearTop.toString();
+      _controllerLeft.text = Global.nearLeft.toString();
+      _controllerReRender.text = Global.reRenderPage.toString();
+    });
   }
 
   @override
@@ -171,6 +232,19 @@ class _SettingState extends State<Setting> {
             ),
           ),
           ListTile(
+            title: TextField(
+              controller: _controllerReRender,
+              decoration: InputDecoration(labelText: "预渲染页数"),
+              keyboardType: TextInputType.number,
+              inputFormatters: <TextInputFormatter>[
+                FilteringTextInputFormatter.digitsOnly
+              ],
+              onChanged: (String value) {
+                setReRender(value);
+              },
+            ),
+          ),
+          ListTile(
             title: Text(
               '查看错误信息',
             ),
@@ -178,6 +252,17 @@ class _SettingState extends State<Setting> {
               icon: Icon(Icons.assignment),
               onPressed: () {
                 errorLogDialog();
+              },
+            ),
+          ),
+          ListTile(
+            title: Text(
+              '初始化配置信息',
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.delete),
+              onPressed: () {
+                resetConfigDialog();
               },
             ),
           ),

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:my_app/comic/utils/utils.dart';
+import 'package:my_app/comic/common/global.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -30,9 +30,33 @@ class SqfliteManager {
       id integer primary key,
       accuration integer not null,
       nearTop integer not null,
-      nearLeft integer not null
+      nearLeft integer not null,
+      reRenderPage integer not null
     )
   ''';
+
+  /// 重建 config 表
+  static Future<void> reCreateConfigTable(Database db) async {
+    // 删除
+    await db.execute('drop table $configTable');
+    // 创建
+    await db.execute(_createConfigTable);
+  }
+
+  /// 插入初始化的数据
+  static Future<void> configTableInsertData(Database db) async {
+    await db.insert(
+      configTable,
+      {
+        'id': CONFIG_ID,
+        'accuration': ACCURATION,
+        'nearTop': NEAR_TOP,
+        'nearLeft': NEAR_LEFT,
+        'reRenderPage': RE_RENDER_PAGE,
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
 
   /// 创建 comic table
   /// id
@@ -87,16 +111,7 @@ class SqfliteManager {
           if (await manager.isTableExit(db, configTable) == false) {
             await db.execute(_createConfigTable);
             // 初始化配置数据
-            await db.insert(
-              configTable,
-              {
-                'id': CONFIG_ID,
-                'accuration': 0,
-                'nearTop': 5,
-                'nearLeft': 7,
-              },
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
+            await configTableInsertData(db);
           }
           if (await manager.isTableExit(db, comicTable) == false) {
             await db.execute(_createComicTable);
@@ -111,16 +126,7 @@ class SqfliteManager {
           if (await manager.isTableExit(db, configTable) == false) {
             await db.execute(_createConfigTable);
             // 初始化配置数据
-            await db.insert(
-              configTable,
-              {
-                'id': CONFIG_ID,
-                'accuration': 0,
-                'nearTop': 5,
-                'nearLeft': 7,
-              },
-              conflictAlgorithm: ConflictAlgorithm.replace,
-            );
+            await configTableInsertData(db);
           }
           if (await manager.isTableExit(db, comicTable) == false) {
             await db.execute(_createComicTable);

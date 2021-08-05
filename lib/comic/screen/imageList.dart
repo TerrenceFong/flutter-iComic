@@ -223,6 +223,7 @@ class _ImageListState extends State<ImageList> {
           controller: _scrollController,
           itemCount: imageData.length,
           itemExtent: screenWidth,
+          cacheExtent: screenWidth * Global.reRenderPage,
           itemBuilder: (context, index) {
             return ImageDetail(
               filePath: imageData[index],
@@ -419,6 +420,7 @@ class _ImageDetailState extends State<ImageDetail> {
 
     setState(() {
       transWords = res;
+      showTrans = true;
     });
   }
 

@@ -7,8 +7,6 @@ import 'dart:convert';
 
 import 'package:my_app/comic/common/global.dart';
 
-const CONFIG_ID = 1;
-
 class Words {
   String words;
   Location location;
