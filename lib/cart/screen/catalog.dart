@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/cart/models/cart.dart';
-import 'package:my_app/cart/models/catalog.dart';
+import 'package:i_comic/cart/models/cart.dart';
+import 'package:i_comic/cart/models/catalog.dart';
 import 'package:provider/provider.dart';
 
 class MyCatalog extends StatelessWidget {

@@ -5,7 +5,7 @@ import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-import 'package:my_app/comic/common/global.dart';
+import 'package:i_comic/comic/common/global.dart';
 
 class Words {
   String words;

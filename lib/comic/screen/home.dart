@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:my_app/comic/common/global.dart';
-import 'package:my_app/comic/utils/sqflite_db.dart';
+import 'package:i_comic/comic/common/global.dart';
+import 'package:i_comic/comic/utils/sqflite_db.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import "package:collection/collection.dart";

@@ -1,4 +1,4 @@
-# my_app
+# iComic
 
 A new Flutter project.
 

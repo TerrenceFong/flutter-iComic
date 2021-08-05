@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:my_app/comic/common/global.dart';
+import 'package:i_comic/comic/common/global.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 

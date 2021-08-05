@@ -1,4 +1,4 @@
-import 'package:my_app/comic/utils/utils.dart';
+import 'package:i_comic/comic/utils/utils.dart';
 
 class Trans {
   final int id;

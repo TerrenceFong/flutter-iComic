@@ -3,12 +3,12 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:my_app/comic/common/global.dart';
-import 'package:my_app/comic/utils/sqflite_db.dart';
-import 'package:my_app/comic/utils/utils.dart';
+import 'package:i_comic/comic/common/global.dart';
+import 'package:i_comic/comic/utils/sqflite_db.dart';
+import 'package:i_comic/comic/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:my_app/comic/models/comic.dart';
+import 'package:i_comic/comic/models/comic.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

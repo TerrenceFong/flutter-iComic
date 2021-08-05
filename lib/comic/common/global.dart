@@ -1,4 +1,4 @@
-import 'package:my_app/comic/utils/sqflite_db.dart';
+import 'package:i_comic/comic/utils/sqflite_db.dart';
 
 /// 配置信息常量
 const CONFIG_ID = 1;
