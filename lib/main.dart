@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:my_app/cart/common/theme.dart';
 import 'package:my_app/cart/models/cart.dart';
@@ -10,13 +13,55 @@ import 'package:my_app/comic/screen/chapterList.dart' as chapterList;
 import 'package:my_app/comic/screen/imageList.dart' as imageList;
 import 'package:my_app/comic/screen/previewList.dart' as previewList;
 import 'package:my_app/comic/screen/setting.dart' as setting;
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'cart/screen/catalog.dart';
 import 'testFileImage.dart' as TestFileImage;
 import 'detail.dart';
 import 'cart/screen/login.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  Future<String> localPath() async {
+    final directory = await getApplicationDocumentsDirectory();
+
+    return directory.path;
+  }
+
+  Future<File> getFile(String fileName) async {
+    final path = await localPath();
+    final filePath = path + "/" + fileName;
+
+    File file = File(filePath);
+    return await file.create();
+  }
+
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+
+    FlutterError.onError = (FlutterErrorDetails details) {
+      // 转发到zone
+      Zone.current.handleUncaughtError(details.exception, details.stack!);
+    };
+
+    runApp(MyApp());
+  }, (Object error, StackTrace stack) async {
+    print('zone _handleError $error stack $stack');
+    // 判断文件是否存在，不存在就创建一个
+    File file = await getFile('errorInfo.txt');
+    file.writeAsString(
+      '''
+\n
+@@split@@
+-----------------------------------
+Date: ${DateTime.now()}
+zone _handleError $error stack $stack
+-----------------------------------
+''',
+      mode: FileMode.append,
+    );
+    // exit(1);
+  });
+}
 
 class MyApp extends StatelessWidget {
   @override

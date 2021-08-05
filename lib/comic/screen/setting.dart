@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_app/comic/common/global.dart';
 import 'package:my_app/comic/utils/sqflite_db.dart';
 import 'package:my_app/comic/utils/utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class Setting extends StatefulWidget {
   const Setting({Key? key}) : super(key: key);
@@ -75,6 +78,53 @@ class _SettingState extends State<Setting> {
     });
   }
 
+  void errorLogDialog() async {
+    Future<List<String>> getInfo(String fileName) async {
+      final directory = await getApplicationDocumentsDirectory();
+      final path = directory.path;
+      final filePath = path + "/" + fileName;
+
+      File file = File(filePath);
+      file = await file.create();
+
+      final contents = await file.readAsString();
+      var contentList = contents.split("@@split@@");
+      contentList.removeAt(0);
+      // 反转 优先展示最新数据
+      return contentList.reversed.toList();
+    }
+
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context1) => Dialog(
+        child: FutureBuilder<List<String>>(
+          future: getInfo('errorInfo.txt'),
+          builder: (context, AsyncSnapshot<List<String>> snapshot) {
+            if (snapshot.hasData) {
+              return Column(
+                children: <Widget>[
+                  ListTile(title: Text("错误信息")),
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return ListTile(
+                          title: Text(snapshot.data![index]),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              );
+            } else {
+              return CircularProgressIndicator();
+            }
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -117,6 +167,17 @@ class _SettingState extends State<Setting> {
               ],
               onChanged: (String value) {
                 setNearLeft(value);
+              },
+            ),
+          ),
+          ListTile(
+            title: Text(
+              '查看错误信息',
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.assignment),
+              onPressed: () {
+                errorLogDialog();
               },
             ),
           ),
