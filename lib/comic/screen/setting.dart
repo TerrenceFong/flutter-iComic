@@ -102,7 +102,7 @@ class _SettingState extends State<Setting> {
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.digitsOnly
               ],
-              onSubmitted: (String value) {
+              onChanged: (String value) {
                 setNearTop(value);
               },
             ),
@@ -115,7 +115,7 @@ class _SettingState extends State<Setting> {
               inputFormatters: <TextInputFormatter>[
                 FilteringTextInputFormatter.digitsOnly
               ],
-              onSubmitted: (String value) {
+              onChanged: (String value) {
                 setNearLeft(value);
               },
             ),
