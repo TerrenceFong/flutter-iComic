@@ -65,7 +65,11 @@ class _ChapterListState extends State<ChapterList> {
     print('build');
     return Scaffold(
       appBar: AppBar(
-        title: Text(comicPath),
+        title: Text(
+          comicPath,
+          style: TextStyle(fontSize: 17),
+        ),
+        toolbarHeight: 44,
       ),
       body: ListView.builder(
         key: const Key('long_list'),

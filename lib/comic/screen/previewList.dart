@@ -101,7 +101,11 @@ class _PreviewListState extends State<PreviewList> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(chapter),
+        title: Text(
+          chapter,
+          style: TextStyle(fontSize: 17),
+        ),
+        toolbarHeight: 44,
         actions: <Widget>[
           IconButton(
             icon: Icon(

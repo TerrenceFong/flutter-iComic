@@ -190,7 +190,11 @@ class _SettingState extends State<Setting> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Setting'),
+        title: Text(
+          'Setting',
+          style: TextStyle(fontSize: 17),
+        ),
+        toolbarHeight: 44,
       ),
       body: ListView(
         children: <Widget>[

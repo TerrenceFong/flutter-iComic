@@ -135,10 +135,13 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    print('build');
     return Scaffold(
       appBar: AppBar(
-        title: Text('Comic Lists'),
+        title: Text(
+          'Comic Lists',
+          style: TextStyle(fontSize: 17),
+        ),
+        toolbarHeight: 44,
         actions: <Widget>[
           IconButton(
             icon: Icon(
