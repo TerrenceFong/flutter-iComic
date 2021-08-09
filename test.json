@@ -650,5 +650,232 @@
       "exif": "UP",
       "scene": "screen_shot"
     }
-  }
+  },
+  "yd1": [
+    {
+      "words": "甘い生活函",
+      "location": {
+        "top": 58,
+        "left": 69,
+        "width": 137,
+        "height": 42
+      }
+    },
+    {
+      "words": "あによ？",
+      "location": {
+        "top": 111,
+        "left": 453,
+        "width": 26,
+        "height": 88
+      }
+    },
+    {
+      "words": "あなたが",
+      "location": {
+        "top": 106,
+        "left": 401,
+        "width": 27,
+        "height": 85
+      }
+    },
+    {
+      "words": "ヘンな",
+      "location": {
+        "top": 113,
+        "left": 378,
+        "width": 29,
+        "height": 58
+      }
+    },
+    {
+      "words": "アイデア",
+      "location": {
+        "top": 117,
+        "left": 353,
+        "width": 27,
+        "height": 73
+      }
+    },
+    {
+      "words": "出すから",
+      "location": {
+        "top": 117,
+        "left": 330,
+        "width": 22,
+        "height": 71
+      }
+    },
+    {
+      "words": ".",
+      "location": {
+        "top": 106,
+        "left": 308,
+        "width": 18,
+        "height": 25
+      }
+    },
+    {
+      "words": "…ホラァ",
+      "location": {
+        "top": 106,
+        "left": 834,
+        "width": 24,
+        "height": 82
+      }
+    },
+    {
+      "words": "マネキ",
+      "location": {
+        "top": 425,
+        "left": 260,
+        "width": 29,
+        "height": 67
+      }
+    },
+    {
+      "words": "もんでる",
+      "location": {
+        "top": 423,
+        "left": 238,
+        "width": 22,
+        "height": 84
+      }
+    },
+    {
+      "words": "」",
+      "location": {
+        "top": 423,
+        "left": 215,
+        "width": 20,
+        "height": 44
+      }
+    },
+    {
+      "words": "今まであんな",
+      "location": {
+        "top": 419,
+        "left": 458,
+        "width": 28,
+        "height": 132
+      }
+    },
+    {
+      "words": "行動したっは",
+      "location": {
+        "top": 421,
+        "left": 432,
+        "width": 30,
+        "height": 146
+      }
+    },
+    {
+      "words": "2",
+      "location": {
+        "top": 551,
+        "left": 718,
+        "width": 33,
+        "height": 31
+      }
+    },
+    {
+      "words": "ンに",
+      "location": {
+        "top": 602,
+        "left": 267,
+        "width": 31,
+        "height": 69
+      }
+    },
+    {
+      "words": "うれし",
+      "location": {
+        "top": 598,
+        "left": 244,
+        "width": 27,
+        "height": 69
+      }
+    },
+    {
+      "words": "そうだし",
+      "location": {
+        "top": 598,
+        "left": 221,
+        "width": 26,
+        "height": 87
+      }
+    },
+    {
+      "words": "バ2",
+      "location": {
+        "top": 744,
+        "left": 123,
+        "width": 31,
+        "height": 42
+      }
+    },
+    {
+      "words": "ちゃい",
+      "location": {
+        "top": 742,
+        "left": 97,
+        "width": 31,
+        "height": 73
+      }
+    },
+    {
+      "words": "ました",
+      "location": {
+        "top": 742,
+        "left": 72,
+        "width": 26,
+        "height": 87
+      }
+    },
+    {
+      "words": "っれしそう",
+      "location": {
+        "top": 746,
+        "left": 834,
+        "width": 26,
+        "height": 113
+      }
+    },
+    {
+      "words": "あの",
+      "location": {
+        "top": 1046,
+        "left": 113,
+        "width": 29,
+        "height": 46
+      }
+    },
+    {
+      "words": "ですね",
+      "location": {
+        "top": 1046,
+        "left": 84,
+        "width": 31,
+        "height": 71
+      }
+    },
+    {
+      "words": "何が",
+      "location": {
+        "top": 1046,
+        "left": 290,
+        "width": 27,
+        "height": 46
+      }
+    },
+    {
+      "words": "…",
+      "location": {
+        "top": 1046,
+        "left": 268,
+        "width": 18,
+        "height": 46
+      }
+    }
+  ]
 }

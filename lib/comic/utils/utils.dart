@@ -26,6 +26,13 @@ class Words {
       'location': location.toMap(),
     };
   }
+
+  Map toMap() {
+    return {
+      'words': words,
+      'location': location.toMap(),
+    };
+  }
 }
 
 class Location {
@@ -96,7 +103,11 @@ List<Words> arrangeWords(List<Words> words) {
       } else {
         // 后续的跟前一项比较
         if (nearInt(position['top'], e.location.top, Global.nearTop) &&
-            nearInt(position['left']! + position['width']!, e.location.left,
+            nearInt(
+                position['left']! > e.location.left
+                    ? position['left']! - position['width']!
+                    : position['left']! + position['width']!,
+                e.location.left,
                 Global.nearLeft)) {
           word = e.words + word;
           position = e.location.toMap();
@@ -273,32 +284,61 @@ Future<List<Words>> getTransInfoByYD(String img64) async {
     final parsed =
         json.decode(utf8decoder.convert(res.bodyBytes))['Result']['regions'];
 
-    List<Words> wordsData = parsed.map<Words>((json) {
-      String word = '';
-      var lines = (json['lines'] as List).toList();
-      for (int i = 0; i < lines.length; i++) {
-        var e = lines[i];
-        word += e['text'];
+    List<Words> wordsData = [];
+
+    for (var i = 0; i < parsed.length; i++) {
+      var outer = parsed[i];
+      for (int i = 0; i < outer['lines'].length; i++) {
+        var e = outer['lines'][i];
+
+        wordsData.add(Words.fromJson(
+            {'words': e['text'], 'location': calcLocation(e['boundingBox'])}));
       }
-      List<String> boundingBox = json['boundingBox'].split(',');
+    }
 
-      return Words.fromJson({
-        'words': word,
-        'location': {
-          'top': int.parse(boundingBox[0]),
-          'left': int.parse(boundingBox[1]),
-          'width': int.parse(boundingBox[2]) - int.parse(boundingBox[0]),
-          'height': 0,
-        }
-      });
-    }).toList();
+    // parsed.map<Words>((json) {
+    //   String word = '';
+    //   var lines = (json['lines'] as List).toList();
+    //   for (int i = 0; i < lines.length; i++) {
+    //     var e = lines[i];
+    //     word += e['text'];
+    //   }
+    //   List<String> boundingBox = json['boundingBox'].split(',');
 
-    List<Words> transWords = await translateWords(wordsData);
+    //   return Words.fromJson({
+    //     'words': word,
+    //     'location': {
+    //       'top': int.parse(boundingBox[0]),
+    //       'left': int.parse(boundingBox[1]),
+    //       'width': int.parse(boundingBox[2]) - int.parse(boundingBox[0]),
+    //       'height': 0,
+    //     }
+    //   });
+    // }).toList();
+
+    List<Words> transWords = await translateWords(arrangeWords(wordsData));
 
     return transWords;
   } else {
     throw Exception('Failed to get baidu translate.');
   }
+}
+
+/// 将 x1,y1,x2,y2,x3,y3,x4,y4 转化为 location 对象
+Map<String, dynamic> calcLocation(String location) {
+  var arr = location.split(',').map<int>((e) => int.parse(e)).toList();
+
+  int top = arr[1];
+  int left = arr[0];
+  int width = arr[2] - arr[0];
+  int height = arr[5] - arr[3];
+
+  return {
+    'top': top,
+    'left': left,
+    'width': width,
+    'height': height,
+  };
 }
 
 /// 百度相关信息
