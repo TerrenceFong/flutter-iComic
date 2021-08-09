@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:i_comic/comic/common/global.dart';
 import 'package:i_comic/comic/utils/sqflite_db.dart';
 import 'package:i_comic/comic/utils/utils.dart';
@@ -138,13 +139,17 @@ class _ImageListState extends State<ImageList> {
         if (pointerEnd.dx < screenWidth / 3) {
           print('当前点击左侧');
           if (lastPage == 0) return;
-          lastPage = lastPage - 1;
+          setState(() {
+            lastPage = lastPage - 1;
+          });
           animateToOffset(_scrollController, lastPage * screenWidth, () {});
           savePage(lastPage);
         } else if (pointerEnd.dx > screenWidth / 3 * 2) {
           print('当前点击右侧');
           if (lastPage == imageData.length - 1) return;
-          lastPage = lastPage + 1;
+          setState(() {
+            lastPage = lastPage + 1;
+          });
           animateToOffset(_scrollController, lastPage * screenWidth, () {});
           savePage(lastPage);
         }
@@ -164,14 +169,18 @@ class _ImageListState extends State<ImageList> {
       if (touchRangeX < 0 && lastPage > 0) {
         // 从左到右
         print('从左到右 上一页');
-        lastPage = lastPage - 1;
+        setState(() {
+          lastPage = lastPage - 1;
+        });
         animateToOffset(_scrollController, lastPage * screenWidth, () {});
         savePage(lastPage);
         print('lastPage: $lastPage');
       } else if (touchRangeX > 0 && lastPage < imageData.length - 1) {
         // 从右到左
         print('从右到左 下一页');
-        lastPage = lastPage + 1;
+        setState(() {
+          lastPage = lastPage + 1;
+        });
         animateToOffset(_scrollController, lastPage * screenWidth, () {});
         savePage(lastPage);
         print('lastPage: $lastPage');
@@ -214,23 +223,39 @@ class _ImageListState extends State<ImageList> {
     print('imageList build');
     ComicModel comic = context.watch<ComicModel>();
 
-    return Material(
-      child: Container(
-        color: Colors.black,
-        child: ListView.builder(
-          physics: comic.isScroll ? null : new NeverScrollableScrollPhysics(),
-          scrollDirection: Axis.horizontal,
-          controller: _scrollController,
-          itemCount: imageData.length,
-          itemExtent: screenWidth,
-          cacheExtent: screenWidth * Global.reRenderPage,
-          itemBuilder: (context, index) {
-            return ImageDetail(
-              filePath: imageData[index],
-              getPointDown: getPointDownListenerInHorizontal(),
-              getPointUp: getPointUpListenerInHorizontal(),
-            );
-          },
+    return AnnotatedRegion(
+      value: SystemUiOverlayStyle.light,
+      child: Material(
+        child: Container(
+          color: Colors.black,
+          child: Stack(
+            children: [
+              ListView.builder(
+                physics:
+                    comic.isScroll ? null : new NeverScrollableScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                controller: _scrollController,
+                itemCount: imageData.length,
+                itemExtent: screenWidth,
+                cacheExtent: screenWidth * Global.reRenderPage,
+                itemBuilder: (context, index) {
+                  return ImageDetail(
+                    filePath: imageData[index],
+                    getPointDown: getPointDownListenerInHorizontal(),
+                    getPointUp: getPointUpListenerInHorizontal(),
+                  );
+                },
+              ),
+              Positioned(
+                bottom: 15,
+                right: 20,
+                child: Text(
+                  '${lastPage + 1}/${imageData.length}',
+                  style: TextStyle(color: Colors.white),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
