@@ -103,11 +103,7 @@ List<Words> arrangeWords(List<Words> words) {
       } else {
         // 后续的跟前一项比较
         if (nearInt(position['top'], e.location.top, Global.nearTop) &&
-            nearInt(
-                position['left']! > e.location.left
-                    ? position['left']! - position['width']!
-                    : position['left']! + position['width']!,
-                e.location.left,
+            nearInt(position['left']! + position['width']!, e.location.left,
                 Global.nearLeft)) {
           word = e.words + word;
           position = e.location.toMap();
@@ -296,27 +292,8 @@ Future<List<Words>> getTransInfoByYD(String img64) async {
       }
     }
 
-    // parsed.map<Words>((json) {
-    //   String word = '';
-    //   var lines = (json['lines'] as List).toList();
-    //   for (int i = 0; i < lines.length; i++) {
-    //     var e = lines[i];
-    //     word += e['text'];
-    //   }
-    //   List<String> boundingBox = json['boundingBox'].split(',');
-
-    //   return Words.fromJson({
-    //     'words': word,
-    //     'location': {
-    //       'top': int.parse(boundingBox[0]),
-    //       'left': int.parse(boundingBox[1]),
-    //       'width': int.parse(boundingBox[2]) - int.parse(boundingBox[0]),
-    //       'height': 0,
-    //     }
-    //   });
-    // }).toList();
-
-    List<Words> transWords = await translateWords(arrangeWords(wordsData));
+    List<Words> transWords =
+        await translateWords(arrangeWords(wordsData.reversed.toList()));
 
     return transWords;
   } else {

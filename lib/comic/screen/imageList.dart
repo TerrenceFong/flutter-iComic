@@ -335,7 +335,7 @@ class _ImageDetailState extends State<ImageDetail> {
           ? await getTransInfoByYD(getBase64())
           : await getTransInfo(
               getBase64(),
-              Global.accuration == 1 ? 0 : 1,
+              Global.accuration == 2 ? 1 : 0,
             );
       setState(() {
         loading = false;
@@ -389,11 +389,11 @@ class _ImageDetailState extends State<ImageDetail> {
     setState(() {
       loading = true;
     });
-    List<Words> _transWords = Global.accuration == 0
+    List<Words> _transWords = accuration == 0
         ? await getTransInfoByYD(getBase64())
         : await getTransInfo(
             getBase64(),
-            Global.accuration == 1 ? 0 : 1,
+            accuration == 2 ? 1 : 0,
           );
     setState(() {
       loading = false;
@@ -531,7 +531,7 @@ class _ImageDetailState extends State<ImageDetail> {
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('重新获取翻译'),
-        content: Text('是否重新获取${transMap[Global.accuration]}翻译？'),
+        content: Text('是否重新获取${transMap[accuration]}翻译？'),
         actions: <Widget>[
           TextButton(
             onPressed: () {

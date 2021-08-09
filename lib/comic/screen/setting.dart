@@ -7,15 +7,6 @@ import 'package:i_comic/comic/utils/sqflite_db.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_material_pickers/flutter_material_pickers.dart';
 
-class StateModel {
-  const StateModel(this.name, this.value);
-  final String name;
-  final int value;
-
-  @override
-  String toString() => name.toString();
-}
-
 class Setting extends StatefulWidget {
   const Setting({Key? key}) : super(key: key);
 
@@ -43,7 +34,7 @@ class _SettingState extends State<Setting> {
 
   void setAccurate(String value) async {
     var db = await SqfliteManager.getInstance();
-    int current = int.parse(value);
+    int current = transMap.indexOf(value);
 
     await db.update(
       SqfliteManager.configTable,
@@ -54,7 +45,7 @@ class _SettingState extends State<Setting> {
     );
 
     setState(() {
-      selectedTrans = transMap.indexOf(value);
+      selectedTrans = current;
       Global.accuration = current;
     });
   }
