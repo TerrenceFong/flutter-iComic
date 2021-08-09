@@ -202,6 +202,105 @@ Future<List<Words>> translateWords(List<Words> words) async {
   return transWords;
 }
 
+/// 百度 api 提取文字并翻译
+Future<List<Words>> getTransInfo(String image, int type) async {
+  final res = await http.Client().post(
+    Uri.parse(
+        'https://42d3g2teii.execute-api.us-east-1.amazonaws.com/prod/api/sp-lottery/trans-info'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, dynamic>{
+      'image': image,
+      'type': type,
+    }),
+  );
+
+  if (res.statusCode == 200) {
+    Utf8Decoder utf8decoder = Utf8Decoder();
+    final parsed =
+        json.decode(utf8decoder.convert(res.bodyBytes))['data']['words_result'];
+
+    final wordsData =
+        parsed.map<Words>((json) => Words.fromJson(json)).toList();
+
+    List<Words> transWords = await translateWords(arrangeWords(wordsData));
+
+    return transWords;
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to get translate.');
+  }
+}
+
+/// 有道云 api 提取文字并翻译
+Future<List<Words>> getTransInfoByYD(String img64) async {
+  String appId = "6594b3be1a800663";
+  String appKey = "B62yN7nQA6C3MDoijgagWTWMZKuswifp";
+  String currentTime =
+      (DateTime.now().millisecondsSinceEpoch / 1000).truncate().toString();
+  String salt = (int.parse(currentTime) * math.Random().nextInt(1)).toString();
+  String input =
+      '${img64.substring(0, 10)}${img64.length}${img64.substring(img64.length - 10)}';
+  String str1 = appId + input + salt + currentTime + appKey;
+  String sign = sha256.convert(utf8.encode(str1)).toString();
+
+  final Uri uri = Uri.parse('https://openapi.youdao.com/ocrapi');
+  final res = await http.post(
+    uri,
+    body: {
+      "img": img64,
+      "langType": "ja",
+      "detectType": "10012",
+      "imageType": "1",
+      "appKey": appId,
+      "salt": salt,
+      "sign": sign,
+      "docType": 'json',
+      "signType": 'v3',
+      "curtime": currentTime,
+      "column": "columns",
+    },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    encoding: Encoding.getByName('utf-8'),
+  );
+
+  if (res.statusCode == 200) {
+    Utf8Decoder utf8decoder = Utf8Decoder();
+    final parsed =
+        json.decode(utf8decoder.convert(res.bodyBytes))['Result']['regions'];
+
+    List<Words> wordsData = parsed.map<Words>((json) {
+      String word = '';
+      var lines = (json['lines'] as List).toList();
+      for (int i = 0; i < lines.length; i++) {
+        var e = lines[i];
+        word += e['text'];
+      }
+      List<String> boundingBox = json['boundingBox'].split(',');
+
+      return Words.fromJson({
+        'words': word,
+        'location': {
+          'top': int.parse(boundingBox[0]),
+          'left': int.parse(boundingBox[1]),
+          'width': int.parse(boundingBox[2]) - int.parse(boundingBox[0]),
+          'height': 0,
+        }
+      });
+    }).toList();
+
+    List<Words> transWords = await translateWords(wordsData);
+
+    return transWords;
+  } else {
+    throw Exception('Failed to get baidu translate.');
+  }
+}
+
 /// 百度相关信息
 String bdAppId = '20210729000900971';
 String bdSercet = 'ZGdTJRGaQi9FxI4lMZgM';

@@ -7,6 +7,8 @@ const NEAR_TOP = 5;
 const NEAR_LEFT = 7;
 const RE_RENDER_PAGE = 4;
 
+const List<String> transMap = ["有道", "百度-高精度", "百度-通用版"];
+
 class Global {
   static late int accuration;
   static late int nearTop;

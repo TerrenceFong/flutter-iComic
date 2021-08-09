@@ -10,7 +10,6 @@ import 'package:i_comic/comic/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:i_comic/comic/models/comic.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ImageList extends StatefulWidget {
@@ -262,38 +261,6 @@ class _ImageListState extends State<ImageList> {
   }
 }
 
-/// 提取文字并翻译
-Future<List<Words>> getTransInfo(String image, int type) async {
-  final res = await http.Client().post(
-    Uri.parse(
-        'https://42d3g2teii.execute-api.us-east-1.amazonaws.com/prod/api/sp-lottery/trans-info'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, dynamic>{
-      'image': image,
-      'type': type,
-    }),
-  );
-
-  if (res.statusCode == 200) {
-    Utf8Decoder utf8decoder = Utf8Decoder();
-    final parsed =
-        json.decode(utf8decoder.convert(res.bodyBytes))['data']['words_result'];
-
-    final wordsData =
-        parsed.map<Words>((json) => Words.fromJson(json)).toList();
-
-    List<Words> transWords = await translateWords(arrangeWords(wordsData));
-
-    return transWords;
-  } else {
-    // If the server did not return a 200 OK response,
-    // then throw an exception.
-    throw Exception('Failed to get translate.');
-  }
-}
-
 class ImageDetail extends StatefulWidget {
   final String filePath;
   final PointerDownEventListener getPointDown;
@@ -364,10 +331,12 @@ class _ImageDetailState extends State<ImageDetail> {
       setState(() {
         loading = true;
       });
-      List<Words> _transWords = await getTransInfo(
-        getBase64(),
-        Global.accuration,
-      );
+      List<Words> _transWords = Global.accuration == 0
+          ? await getTransInfoByYD(getBase64())
+          : await getTransInfo(
+              getBase64(),
+              Global.accuration == 1 ? 0 : 1,
+            );
       setState(() {
         loading = false;
       });
@@ -397,8 +366,8 @@ class _ImageDetailState extends State<ImageDetail> {
   }
 
   /// 重新请求翻译
-  /// thisAccuration    true - 全局精度 false - 取反精度
-  void resetWords(bool thisAccuration) async {
+  /// accuration
+  void resetWords(int accuration) async {
     final directory = await getApplicationDocumentsDirectory();
 
     String fullPath = filePath.split(directory.path)[1];
@@ -420,15 +389,12 @@ class _ImageDetailState extends State<ImageDetail> {
     setState(() {
       loading = true;
     });
-    List<Words> _transWords = await getTransInfo(
-      getBase64(),
-      // 取反
-      thisAccuration
-          ? Global.accuration
-          : Global.accuration == 1
-              ? 0
-              : 1,
-    );
+    List<Words> _transWords = Global.accuration == 0
+        ? await getTransInfoByYD(getBase64())
+        : await getTransInfo(
+            getBase64(),
+            Global.accuration == 1 ? 0 : 1,
+          );
     setState(() {
       loading = false;
     });
@@ -559,16 +525,13 @@ class _ImageDetailState extends State<ImageDetail> {
         : Container();
   }
 
-  List<String> transMap = ["高精度", "通用版"];
-
   /// 重新翻译弹窗
-  void _showDialog(bool thisAccuration) {
+  void _showDialog(int accuration) {
     showDialog<String>(
       context: context,
       builder: (BuildContext context) => AlertDialog(
         title: const Text('重新获取翻译'),
-        content: Text(
-            '是否重新获取${thisAccuration ? transMap[Global.accuration] : Global.accuration == 1 ? transMap[0] : transMap[1]}翻译？'),
+        content: Text('是否重新获取${transMap[Global.accuration]}翻译？'),
         actions: <Widget>[
           TextButton(
             onPressed: () {
@@ -579,7 +542,7 @@ class _ImageDetailState extends State<ImageDetail> {
           TextButton(
             onPressed: () {
               Navigator.pop(context, '确认');
-              resetWords(thisAccuration);
+              resetWords(accuration);
             },
             child: const Text('确认'),
           ),
@@ -626,14 +589,14 @@ class _ImageDetailState extends State<ImageDetail> {
                 dy < centerY[0]) {
               print('点击了中上偏右位置: ${e.localPosition.dx}, ${e.localPosition.dy}');
               setState(() {
-                _showDialog(false);
+                _showDialog(Global.accuration == 0 ? 1 : 0);
               });
             } else if (dx >= centerX[0] &&
                 dx < (screenWidth / 2) &&
                 dy < centerY[0]) {
               print('点击了中上偏左位置: ${e.localPosition.dx}, ${e.localPosition.dy}');
               setState(() {
-                _showDialog(true);
+                _showDialog(Global.accuration);
               });
             }
 

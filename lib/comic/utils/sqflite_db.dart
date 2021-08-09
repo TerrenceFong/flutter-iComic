@@ -22,7 +22,7 @@ class SqfliteManager {
 
   /// 创建 config table
   /// id          固定为 1 ，全局只有一条配置
-  /// accuration  翻译精度   高精度-0  标准-1
+  /// accuration  翻译精度   有道-0  高精度-1  标准-2
   /// nearTop     算法相邻顶部的值  default 5
   /// nearLeft    算法相邻左侧的值  default 7
   static String _createConfigTable = '''

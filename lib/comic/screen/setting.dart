@@ -5,6 +5,16 @@ import 'package:flutter/services.dart';
 import 'package:i_comic/comic/common/global.dart';
 import 'package:i_comic/comic/utils/sqflite_db.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter_material_pickers/flutter_material_pickers.dart';
+
+class StateModel {
+  const StateModel(this.name, this.value);
+  final String name;
+  final int value;
+
+  @override
+  String toString() => name.toString();
+}
 
 class Setting extends StatefulWidget {
   const Setting({Key? key}) : super(key: key);
@@ -14,14 +24,15 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
-  bool isAccurate = true;
+  int selectedTrans = ACCURATION;
+
   late TextEditingController _controllerTop;
   late TextEditingController _controllerLeft;
   late TextEditingController _controllerReRender;
 
   @override
   void initState() {
-    isAccurate = Global.accuration == 0 ? true : false;
+    selectedTrans = Global.accuration;
     _controllerTop = TextEditingController(text: Global.nearTop.toString());
     _controllerLeft = TextEditingController(text: Global.nearLeft.toString());
     _controllerReRender = TextEditingController(
@@ -30,19 +41,20 @@ class _SettingState extends State<Setting> {
     super.initState();
   }
 
-  void setIsAccurate(bool value) async {
+  void setAccurate(String value) async {
     var db = await SqfliteManager.getInstance();
-    int current = value == true ? 0 : 1;
+    int current = int.parse(value);
+
     await db.update(
       SqfliteManager.configTable,
       {
-        'accuration': value == true ? 0 : 1,
+        'accuration': current,
       },
       CONFIG_ID,
     );
 
     setState(() {
-      isAccurate = value;
+      selectedTrans = transMap.indexOf(value);
       Global.accuration = current;
     });
   }
@@ -179,7 +191,7 @@ class _SettingState extends State<Setting> {
   /// 还原 setting 页面的信息
   void resetSettingPage() {
     setState(() {
-      isAccurate = Global.accuration == 0 ? true : false;
+      selectedTrans = Global.accuration;
       _controllerTop.text = Global.nearTop.toString();
       _controllerLeft.text = Global.nearLeft.toString();
       _controllerReRender.text = Global.reRenderPage.toString();
@@ -200,14 +212,18 @@ class _SettingState extends State<Setting> {
         children: <Widget>[
           ListTile(
             title: Text(
-              '高精度识别',
+              '文字识别方式',
             ),
-            trailing: Switch(
-              value: isAccurate,
-              onChanged: (value) {
-                setIsAccurate(value);
-              },
-            ),
+            onTap: () {
+              showMaterialRadioPicker<String>(
+                context: context,
+                // title: 'Pick Your State',
+                items: transMap,
+                selectedItem: transMap[selectedTrans],
+                onChanged: setAccurate,
+              );
+            },
+            trailing: Text(transMap[selectedTrans]),
           ),
           ListTile(
             title: TextField(
