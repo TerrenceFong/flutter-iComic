@@ -209,24 +209,66 @@ Future<List<Words>> translateWords(List<Words> words) async {
   return transWords;
 }
 
-/// 百度 api 提取文字并翻译
-Future<List<Words>> getTransInfo(String image, int type) async {
-  final res = await http.Client().post(
+// 设置百度的 APPID/AK/SK
+const APP_ID = '24453940';
+const API_KEY = 'jTbvSE6G91krPA2xAsotWMmo';
+const SECRET_KEY = 'AkD8qhftzMHPHR92vHPRDcs9hy8D2yrn';
+
+/// 百度 api 的 access-token
+Future<void> getBdAccessToken() async {
+  final res = await http.Client().get(
     Uri.parse(
-        'https://42d3g2teii.execute-api.us-east-1.amazonaws.com/prod/api/sp-lottery/trans-info'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, dynamic>{
-      'image': image,
-      'type': type,
-    }),
+      'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=$API_KEY&client_secret=$SECRET_KEY',
+    ),
   );
 
   if (res.statusCode == 200) {
     Utf8Decoder utf8decoder = Utf8Decoder();
     final parsed =
-        json.decode(utf8decoder.convert(res.bodyBytes))['data']['words_result'];
+        json.decode(utf8decoder.convert(res.bodyBytes))['access_token'];
+
+    Global.bdAccessToken = parsed;
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to get access token.');
+  }
+}
+
+/// 百度 api 提取文字并翻译
+Future<List<Words>> getTransInfo(String image, int type) async {
+  List<String> pathMap = ['accurate', 'general'];
+
+  // final res = await http.Client().post(
+  //   Uri.parse(
+  //       'https://42d3g2teii.execute-api.us-east-1.amazonaws.com/prod/api/sp-lottery/trans-info'),
+  //   headers: <String, String>{
+  //     'Content-Type': 'application/json; charset=UTF-8',
+  //   },
+  //   body: jsonEncode(<String, dynamic>{
+  //     'image': image,
+  //     'type': type,
+  //   }),
+  // );
+  final Uri uri = Uri.parse(
+    'https://aip.baidubce.com/rest/2.0/ocr/v1/${pathMap[type]}?access_token=${Global.bdAccessToken}',
+  );
+  final res = await http.post(
+    uri,
+    body: {
+      'image': image,
+      'language_type': 'JAP',
+    },
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    encoding: Encoding.getByName('utf-8'),
+  );
+
+  if (res.statusCode == 200) {
+    Utf8Decoder utf8decoder = Utf8Decoder();
+    final parsed =
+        json.decode(utf8decoder.convert(res.bodyBytes))['words_result'];
 
     final wordsData =
         parsed.map<Words>((json) => Words.fromJson(json)).toList();

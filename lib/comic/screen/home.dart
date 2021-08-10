@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:i_comic/comic/common/global.dart';
 import 'package:i_comic/comic/utils/sqflite_db.dart';
+import 'package:i_comic/comic/utils/utils.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import "package:collection/collection.dart";
@@ -33,6 +34,9 @@ class _HomeState extends State<Home> {
 
     // 初始化数据库
     Global.init();
+
+    // 获取 token
+    getBdAccessToken();
   }
 
   Future<String> localPath() async {

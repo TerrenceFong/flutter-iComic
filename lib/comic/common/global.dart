@@ -15,6 +15,9 @@ class Global {
   static late int nearLeft;
   static late int reRenderPage;
 
+  /// 百度 api 的 access-token
+  static String bdAccessToken = '';
+
   // 初始化全局信息 在 home.dart 初始化时执行
   static void init() async {
     var db = await SqfliteManager.getInstance();
