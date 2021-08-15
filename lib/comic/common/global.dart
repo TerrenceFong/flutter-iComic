@@ -14,6 +14,12 @@ class Global {
   static late int nearTop;
   static late int nearLeft;
   static late int reRenderPage;
+  static String bdTransAppId = '';
+  static String bdTransAppKey = '';
+  static String ydAppId = '';
+  static String ydAppKey = '';
+  static String bceApiKey = '';
+  static String bceSecretKey = '';
 
   /// 百度 api 的 access-token
   static String bdAccessToken = '';
@@ -31,6 +37,12 @@ class Global {
     nearTop = config['nearTop'];
     nearLeft = config['nearLeft'];
     reRenderPage = config['reRenderPage'] ?? 4;
+    bdTransAppId = config['bdTransAppId'] ?? '';
+    bdTransAppKey = config['bdTransAppKey'] ?? '';
+    ydAppId = config['ydAppId'] ?? '';
+    ydAppKey = config['ydAppKey'] ?? '';
+    bceApiKey = config['bceApiKey'] ?? '';
+    bceSecretKey = config['bceSecretKey'] ?? '';
   }
 
   static void reset() {
@@ -38,5 +50,11 @@ class Global {
     nearTop = NEAR_TOP;
     nearLeft = NEAR_LEFT;
     reRenderPage = RE_RENDER_PAGE;
+    bdTransAppId = '';
+    bdTransAppKey = '';
+    ydAppId = '';
+    ydAppKey = '';
+    bceApiKey = '';
+    bceSecretKey = '';
   }
 }

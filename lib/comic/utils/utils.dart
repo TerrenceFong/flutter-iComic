@@ -147,10 +147,11 @@ class MD5Util {
   }
 }
 
+/// 百度翻译
 Future<List<String>> bdTrans(String query, {bool? isMulti}) async {
   String decodeQuery = Uri.encodeComponent(query);
-  String appid = '20210729000900971';
-  String key = 'ZGdTJRGaQi9FxI4lMZgM';
+  String appid = Global.bdTransAppId;
+  String key = Global.bdTransAppKey;
   String salt = DateTime.now().millisecondsSinceEpoch.toString();
   String str1 = appid + query + salt + key;
   String sign = MD5Util.generateMd5(str1);
@@ -209,13 +210,12 @@ Future<List<Words>> translateWords(List<Words> words) async {
   return transWords;
 }
 
-// 设置百度的 APPID/AK/SK
-const APP_ID = '24453940';
-const API_KEY = 'jTbvSE6G91krPA2xAsotWMmo';
-const SECRET_KEY = 'AkD8qhftzMHPHR92vHPRDcs9hy8D2yrn';
-
 /// 百度 api 的 access-token
 Future<void> getBdAccessToken() async {
+  // 百度的 AK/SK
+  String API_KEY = Global.bceApiKey;
+  String SECRET_KEY = Global.bceSecretKey;
+
   final res = await http.Client().get(
     Uri.parse(
       'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=$API_KEY&client_secret=$SECRET_KEY',
@@ -285,8 +285,8 @@ Future<List<Words>> getTransInfo(String image, int type) async {
 
 /// 有道云 api 提取文字并翻译
 Future<List<Words>> getTransInfoByYD(String img64) async {
-  String appId = "6594b3be1a800663";
-  String appKey = "B62yN7nQA6C3MDoijgagWTWMZKuswifp";
+  String appId = Global.ydAppId;
+  String appKey = Global.ydAppKey;
   String currentTime =
       (DateTime.now().millisecondsSinceEpoch / 1000).truncate().toString();
   String salt = (int.parse(currentTime) * math.Random().nextInt(1)).toString();
@@ -359,7 +359,3 @@ Map<String, dynamic> calcLocation(String location) {
     'height': height,
   };
 }
-
-/// 百度相关信息
-String bdAppId = '20210729000900971';
-String bdSercet = 'ZGdTJRGaQi9FxI4lMZgM';

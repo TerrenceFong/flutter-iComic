@@ -21,17 +21,29 @@ class SqfliteManager {
   static SqfliteManager? _instance;
 
   /// 创建 config table
-  /// id          固定为 1 ，全局只有一条配置
-  /// accuration  翻译精度   有道-0  高精度-1  标准-2
-  /// nearTop     算法相邻顶部的值  default 5
-  /// nearLeft    算法相邻左侧的值  default 7
+  /// id            固定为 1 ，全局只有一条配置
+  /// accuration    翻译精度   有道-0  高精度-1  标准-2
+  /// nearTop       算法相邻顶部的值  default 5
+  /// nearLeft      算法相邻左侧的值  default 7
+  /// bdTransAppId  百度翻译 AppId
+  /// bdTransAppKey 百度翻译 AppKey
+  /// ydAppId       有道智云 AppId
+  /// ydAppKey      有道智云 AppKey
+  /// bceApiKey     百度智能云 ApiKey
+  /// bceSecretKey  百度智能云 SecretKey
   static String _createConfigTable = '''
     create table $configTable (
       id integer primary key,
       accuration integer not null,
       nearTop integer not null,
       nearLeft integer not null,
-      reRenderPage integer not null
+      reRenderPage integer not null,
+      bdTransAppId text not null,
+      bdTransAppKey text not null,
+      ydAppId text not null,
+      ydAppKey text not null,
+      bceApiKey text not null,
+      bceSecretKey text not null
     )
   ''';
 
@@ -53,6 +65,12 @@ class SqfliteManager {
         'nearTop': NEAR_TOP,
         'nearLeft': NEAR_LEFT,
         'reRenderPage': RE_RENDER_PAGE,
+        'bdTransAppId': '',
+        'bdTransAppKey': '',
+        'ydAppId': '',
+        'ydAppKey': '',
+        'bceApiKey': '',
+        'bceSecretKey': '',
       },
       conflictAlgorithm: ConflictAlgorithm.replace,
     );

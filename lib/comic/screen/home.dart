@@ -33,10 +33,10 @@ class _HomeState extends State<Home> {
     getRootInfo();
 
     // 初始化数据库
-    Global.init();
-
-    // 获取 token
-    getBdAccessToken();
+    Global.init().then(() {
+      // 获取 token
+      getBdAccessToken();
+    })
   }
 
   Future<String> localPath() async {

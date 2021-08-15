@@ -20,6 +20,12 @@ class _SettingState extends State<Setting> {
   late TextEditingController _controllerTop;
   late TextEditingController _controllerLeft;
   late TextEditingController _controllerReRender;
+  late TextEditingController _controllerConfig1;
+  late TextEditingController _controllerConfig2;
+  late TextEditingController _controllerConfig3;
+  late TextEditingController _controllerConfig4;
+  late TextEditingController _controllerConfig5;
+  late TextEditingController _controllerConfig6;
 
   @override
   void initState() {
@@ -29,6 +35,12 @@ class _SettingState extends State<Setting> {
     _controllerReRender = TextEditingController(
       text: Global.reRenderPage.toString(),
     );
+    _controllerConfig1 = TextEditingController(text: Global.bdTransAppId);
+    _controllerConfig2 = TextEditingController(text: Global.bdTransAppKey);
+    _controllerConfig3 = TextEditingController(text: Global.ydAppId);
+    _controllerConfig4 = TextEditingController(text: Global.ydAppKey);
+    _controllerConfig5 = TextEditingController(text: Global.bceApiKey);
+    _controllerConfig6 = TextEditingController(text: Global.bceSecretKey);
     super.initState();
   }
 
@@ -99,6 +111,60 @@ class _SettingState extends State<Setting> {
     setState(() {
       Global.reRenderPage = currentVal;
     });
+  }
+
+  /// 设置 api 配置
+  void setApiInput(String value, String key) async {
+    var db = await SqfliteManager.getInstance();
+
+    await db.update(
+      SqfliteManager.configTable,
+      {
+        '$key': value,
+      },
+      CONFIG_ID,
+    );
+
+    setState(() {
+      if (key == 'bdTransAppId') {
+        Global.bdTransAppId = value
+      } else if (key == 'bdTransAppKey') {
+        Global.bdTransAppKey = value
+      } else if (key == 'ydAppId') {
+        Global.ydAppId = value
+      } else if (key == 'ydAppKey') {
+        Global.ydAppKey = value
+      } else if (key == 'bceApiKey') {
+        Global.bceApiKey = value
+      } else if (key == 'bceSecretKey') {
+        Global.bceSecretKey = value
+      }
+    });
+  }
+
+  void setConfigApi() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = directory.path;
+
+    File file = File(path + "/config.json");
+    // try catch
+    final contents = await file.readAsString();
+    
+    List jsonConfig = jsonDecode(value);
+
+    String bdTransAppId = jsonConfig['bdTransAppId'];
+    String bdTransAppKey = jsonConfig['bdTransAppKey'];
+    String ydAppId = jsonConfig['ydAppId'];
+    String ydAppKey = jsonConfig['ydAppKey'];
+    String bceApiKey = jsonConfig['bceApiKey'];
+    String bceSecretKey = jsonConfig['bceSecretKey'];
+
+    setApiInput(bdTransAppId, 'bdTransAppId');
+    setApiInput(bdTransAppKey, 'bdTransAppKey');
+    setApiInput(ydAppId, 'ydAppId');
+    setApiInput(ydAppKey, 'ydAppKey');
+    setApiInput(bceApiKey, 'bceApiKey');
+    setApiInput(bceSecretKey, 'bceSecretKey');
   }
 
   void errorLogDialog() async {
@@ -186,6 +252,12 @@ class _SettingState extends State<Setting> {
       _controllerTop.text = Global.nearTop.toString();
       _controllerLeft.text = Global.nearLeft.toString();
       _controllerReRender.text = Global.reRenderPage.toString();
+      _controllerConfig1.text = Global.bdTransAppId;
+      _controllerConfig2.text = Global.bdTransAppKey;
+      _controllerConfig3.text = Global.ydAppId;
+      _controllerConfig4.text = Global.ydAppKey;
+      _controllerConfig5.text = Global.bceApiKey;
+      _controllerConfig6.text = Global.bceSecretKey;
     });
   }
 
@@ -252,6 +324,71 @@ class _SettingState extends State<Setting> {
               ],
               onChanged: (String value) {
                 setReRender(value);
+              },
+            ),
+          ),
+          ListTile(
+            title: TextField(
+              controller: _controllerConfig1,
+              decoration: InputDecoration(labelText: "百度翻译 AppId"),
+              onChanged: (String value) {
+                setApiInput(value, 'bdTransAppId');
+              },
+            ),
+          ),
+          ListTile(
+            title: TextField(
+              controller: _controllerConfig2,
+              decoration: InputDecoration(labelText: "百度翻译 AppKey"),
+              onChanged: (String value) {
+                setApiInput(value, 'bdTransAppKey');
+              },
+            ),
+          ),
+          ListTile(
+            title: TextField(
+              controller: _controllerConfig3,
+              decoration: InputDecoration(labelText: "有道智云 AppId"),
+              onChanged: (String value) {
+                setApiInput(value, 'ydAppId');
+              },
+            ),
+          ),
+          ListTile(
+            title: TextField(
+              controller: _controllerConfig4,
+              decoration: InputDecoration(labelText: "有道智云 AppKey"),
+              onChanged: (String value) {
+                setApiInput(value, 'ydAppKey');
+              },
+            ),
+          ),
+          ListTile(
+            title: TextField(
+              controller: _controllerConfig5,
+              decoration: InputDecoration(labelText: "百度智能云 ApiKey"),
+              onChanged: (String value) {
+                setApiInput(value, 'bceApiKey');
+              },
+            ),
+          ),
+          ListTile(
+            title: TextField(
+              controller: _controllerConfig6,
+              decoration: InputDecoration(labelText: "百度智能云 SecretKey"),
+              onChanged: (String value) {
+                setApiInput(value, 'bceSecretKey');
+              },
+            ),
+          ),
+          ListTile(
+            title: Text(
+              '使用 config.json 配置文件设置上述密钥',
+            ),
+            trailing: IconButton(
+              icon: Icon(Icons.assignment),
+              onPressed: () {
+                setConfigApi();
               },
             ),
           ),
