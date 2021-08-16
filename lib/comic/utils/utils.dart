@@ -213,12 +213,12 @@ Future<List<Words>> translateWords(List<Words> words) async {
 /// 百度 api 的 access-token
 Future<void> getBdAccessToken() async {
   // 百度的 AK/SK
-  String API_KEY = Global.bceApiKey;
-  String SECRET_KEY = Global.bceSecretKey;
+  String apiKey = Global.bceApiKey;
+  String secretKey = Global.bceSecretKey;
 
   final res = await http.Client().get(
     Uri.parse(
-      'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=$API_KEY&client_secret=$SECRET_KEY',
+      'https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=$apiKey&client_secret=$secretKey',
     ),
   );
 

@@ -25,7 +25,7 @@ class Global {
   static String bdAccessToken = '';
 
   // 初始化全局信息 在 home.dart 初始化时执行
-  static void init() async {
+  static Future<void> init() async {
     var db = await SqfliteManager.getInstance();
     var config = (await db.query(
       SqfliteManager.configTable,

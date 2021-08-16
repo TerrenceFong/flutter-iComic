@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -114,7 +115,7 @@ class _SettingState extends State<Setting> {
   }
 
   /// 设置 api 配置
-  void setApiInput(String value, String key) async {
+  void setApiInput(String value, String key, {bool fill = false}) async {
     var db = await SqfliteManager.getInstance();
 
     await db.update(
@@ -127,17 +128,36 @@ class _SettingState extends State<Setting> {
 
     setState(() {
       if (key == 'bdTransAppId') {
-        Global.bdTransAppId = value
+        Global.bdTransAppId = value;
+        if (fill) {
+          _controllerConfig1 = TextEditingController(text: Global.bdTransAppId);
+        }
       } else if (key == 'bdTransAppKey') {
-        Global.bdTransAppKey = value
+        Global.bdTransAppKey = value;
+        if (fill) {
+          _controllerConfig2 =
+              TextEditingController(text: Global.bdTransAppKey);
+        }
       } else if (key == 'ydAppId') {
-        Global.ydAppId = value
+        Global.ydAppId = value;
+        if (fill) {
+          _controllerConfig3 = TextEditingController(text: Global.ydAppId);
+        }
       } else if (key == 'ydAppKey') {
-        Global.ydAppKey = value
+        Global.ydAppKey = value;
+        if (fill) {
+          _controllerConfig4 = TextEditingController(text: Global.ydAppKey);
+        }
       } else if (key == 'bceApiKey') {
-        Global.bceApiKey = value
+        Global.bceApiKey = value;
+        if (fill) {
+          _controllerConfig5 = TextEditingController(text: Global.bceApiKey);
+        }
       } else if (key == 'bceSecretKey') {
-        Global.bceSecretKey = value
+        Global.bceSecretKey = value;
+        if (fill) {
+          _controllerConfig6 = TextEditingController(text: Global.bceSecretKey);
+        }
       }
     });
   }
@@ -146,25 +166,42 @@ class _SettingState extends State<Setting> {
     final directory = await getApplicationDocumentsDirectory();
     final path = directory.path;
 
-    File file = File(path + "/config.json");
-    // try catch
-    final contents = await file.readAsString();
-    
-    List jsonConfig = jsonDecode(value);
+    File file = File(path + "/apiConfig.json");
+    try {
+      final contents = await file.readAsString();
 
-    String bdTransAppId = jsonConfig['bdTransAppId'];
-    String bdTransAppKey = jsonConfig['bdTransAppKey'];
-    String ydAppId = jsonConfig['ydAppId'];
-    String ydAppKey = jsonConfig['ydAppKey'];
-    String bceApiKey = jsonConfig['bceApiKey'];
-    String bceSecretKey = jsonConfig['bceSecretKey'];
+      var jsonConfig = jsonDecode(contents);
 
-    setApiInput(bdTransAppId, 'bdTransAppId');
-    setApiInput(bdTransAppKey, 'bdTransAppKey');
-    setApiInput(ydAppId, 'ydAppId');
-    setApiInput(ydAppKey, 'ydAppKey');
-    setApiInput(bceApiKey, 'bceApiKey');
-    setApiInput(bceSecretKey, 'bceSecretKey');
+      String bdTransAppId = jsonConfig['bdTransAppId'];
+      String bdTransAppKey = jsonConfig['bdTransAppKey'];
+      String ydAppId = jsonConfig['ydAppId'];
+      String ydAppKey = jsonConfig['ydAppKey'];
+      String bceApiKey = jsonConfig['bceApiKey'];
+      String bceSecretKey = jsonConfig['bceSecretKey'];
+
+      setApiInput(bdTransAppId, 'bdTransAppId', fill: true);
+      setApiInput(bdTransAppKey, 'bdTransAppKey', fill: true);
+      setApiInput(ydAppId, 'ydAppId', fill: true);
+      setApiInput(ydAppKey, 'ydAppKey', fill: true);
+      setApiInput(bceApiKey, 'bceApiKey', fill: true);
+      setApiInput(bceSecretKey, 'bceSecretKey', fill: true);
+    } catch (e) {
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('错误'),
+          content: Text('读取 apiConfig.json 文件失败，请确保在存储根目录下有该配置文件: $e'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, '确认');
+              },
+              child: const Text('确认'),
+            ),
+          ],
+        ),
+      );
+    }
   }
 
   void errorLogDialog() async {
@@ -383,7 +420,7 @@ class _SettingState extends State<Setting> {
           ),
           ListTile(
             title: Text(
-              '使用 config.json 配置文件设置上述密钥',
+              '使用本地 apiConfig.json 设置上述密钥',
             ),
             trailing: IconButton(
               icon: Icon(Icons.assignment),
