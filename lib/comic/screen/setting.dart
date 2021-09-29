@@ -16,6 +16,7 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
+  bool autoTrans = AUTOTRANS == 1 ? true : false;
   int selectedTrans = ACCURATION;
 
   late TextEditingController _controllerTop;
@@ -30,6 +31,7 @@ class _SettingState extends State<Setting> {
 
   @override
   void initState() {
+    autoTrans = Global.autoTrans == 1 ? true : false;
     selectedTrans = Global.accuration;
     _controllerTop = TextEditingController(text: Global.nearTop.toString());
     _controllerLeft = TextEditingController(text: Global.nearLeft.toString());
@@ -43,6 +45,23 @@ class _SettingState extends State<Setting> {
     _controllerConfig5 = TextEditingController(text: Global.bceApiKey);
     _controllerConfig6 = TextEditingController(text: Global.bceSecretKey);
     super.initState();
+  }
+
+  void setAutoTrans(bool value) async {
+    var db = await SqfliteManager.getInstance();
+    int current = value == true ? 1 : 0;
+    await db.update(
+      SqfliteManager.configTable,
+      {
+        'autoTrans': current,
+      },
+      CONFIG_ID,
+    );
+
+    setState(() {
+      autoTrans = value;
+      Global.autoTrans = current;
+    });
   }
 
   void setAccurate(String value) async {
@@ -285,6 +304,7 @@ class _SettingState extends State<Setting> {
   /// 还原 setting 页面的信息
   void resetSettingPage() {
     setState(() {
+      autoTrans = Global.autoTrans == 1 ? true : false;
       selectedTrans = Global.accuration;
       _controllerTop.text = Global.nearTop.toString();
       _controllerLeft.text = Global.nearLeft.toString();
@@ -310,6 +330,17 @@ class _SettingState extends State<Setting> {
       ),
       body: ListView(
         children: <Widget>[
+          ListTile(
+            title: Text(
+              '启用翻译',
+            ),
+            trailing: Switch(
+              value: autoTrans,
+              onChanged: (value) {
+                setAutoTrans(value);
+              },
+            ),
+          ),
           ListTile(
             title: Text(
               '文字识别方式',

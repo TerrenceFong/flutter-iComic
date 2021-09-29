@@ -328,6 +328,11 @@ class _ImageDetailState extends State<ImageDetail> {
     List<Words> res;
 
     if (resDB.length == 0) {
+      if (Global.autoTrans != 1) {
+        print('没有开启自动翻译');
+        return;
+      }
+
       setState(() {
         loading = true;
       });

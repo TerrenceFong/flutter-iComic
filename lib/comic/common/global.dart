@@ -2,6 +2,7 @@ import 'package:i_comic/comic/utils/sqflite_db.dart';
 
 /// 配置信息常量
 const CONFIG_ID = 1;
+const AUTOTRANS = 1;
 const ACCURATION = 0;
 const NEAR_TOP = 5;
 const NEAR_LEFT = 7;
@@ -10,6 +11,7 @@ const RE_RENDER_PAGE = 4;
 const List<String> transMap = ["有道", "百度-高精度", "百度-通用版"];
 
 class Global {
+  static late int autoTrans;
   static late int accuration;
   static late int nearTop;
   static late int nearLeft;
@@ -33,6 +35,7 @@ class Global {
       whereArgs: [CONFIG_ID],
     ))[0];
 
+    autoTrans = config['autoTrans'] ?? 1;
     accuration = config['accuration'];
     nearTop = config['nearTop'];
     nearLeft = config['nearLeft'];
@@ -46,6 +49,7 @@ class Global {
   }
 
   static void reset() {
+    autoTrans = AUTOTRANS;
     accuration = ACCURATION;
     nearTop = NEAR_TOP;
     nearLeft = NEAR_LEFT;

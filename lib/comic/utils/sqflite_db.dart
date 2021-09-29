@@ -22,6 +22,7 @@ class SqfliteManager {
 
   /// 创建 config table
   /// id            固定为 1 ，全局只有一条配置
+  /// autoTrans     自动翻译   开启-1  关闭-0
   /// accuration    翻译精度   有道-0  高精度-1  标准-2
   /// nearTop       算法相邻顶部的值  default 5
   /// nearLeft      算法相邻左侧的值  default 7
@@ -34,6 +35,7 @@ class SqfliteManager {
   static String _createConfigTable = '''
     create table $configTable (
       id integer primary key,
+      autoTrans integer not null,
       accuration integer not null,
       nearTop integer not null,
       nearLeft integer not null,
@@ -61,6 +63,7 @@ class SqfliteManager {
       configTable,
       {
         'id': CONFIG_ID,
+        'autoTrans': AUTOTRANS,
         'accuration': ACCURATION,
         'nearTop': NEAR_TOP,
         'nearLeft': NEAR_LEFT,

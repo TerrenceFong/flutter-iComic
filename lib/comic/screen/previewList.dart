@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:i_comic/comic/common/global.dart';
 import 'package:i_comic/comic/utils/sqflite_db.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -17,6 +18,7 @@ class PreviewList extends StatefulWidget {
 }
 
 class _PreviewListState extends State<PreviewList> {
+  bool autoTrans = Global.autoTrans == 1 ? true : false;
   final String path;
 
   List<String> imageData = [];
@@ -95,6 +97,23 @@ class _PreviewListState extends State<PreviewList> {
     });
   }
 
+  void setAutoTrans(bool value) async {
+    var db = await SqfliteManager.getInstance();
+    int current = value == true ? 1 : 0;
+    await db.update(
+      SqfliteManager.configTable,
+      {
+        'autoTrans': current,
+      },
+      CONFIG_ID,
+    );
+
+    setState(() {
+      autoTrans = value;
+      Global.autoTrans = current;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     print('previewList build');
@@ -107,6 +126,13 @@ class _PreviewListState extends State<PreviewList> {
         ),
         toolbarHeight: 44,
         actions: <Widget>[
+          Switch(
+            value: autoTrans,
+            activeColor: Colors.white,
+            onChanged: (value) {
+              setAutoTrans(value);
+            },
+          ),
           IconButton(
             icon: Icon(
               Icons.settings,
@@ -116,6 +142,12 @@ class _PreviewListState extends State<PreviewList> {
               Navigator.pushNamed(
                 context,
                 '/setting',
+              ).then(
+                (value) {
+                  setState(() {
+                    autoTrans = Global.autoTrans == 1 ? true : false;
+                  });
+                },
               );
             },
           )
